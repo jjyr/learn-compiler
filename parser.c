@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #define MSG_LEN 8
 
@@ -82,22 +83,22 @@ static Token read_token(Parser *p) {
 }
 
 static int read_fixnum(Parser *p) {
-  char buf[32];
   int cur = p->cur;
   int i = 0;
+  int n = 0;
   while (1) {
     int c = p->source[p->cur++];
     if (c > '9' || c < '0') {
       break;
     }
-    buf[i++] = c - '0';
+    n += pow(10, i) * (c - '0');
+    i ++;
   }
   p->cur--;
   if (i == 0) {
     parse_error(p, "fixnum");
   }
-  buf[i] = '\0';
-  return atoi(buf);
+  return n;
 }
 
 static ASTNode *read_exp(Parser *p) {
