@@ -1,7 +1,7 @@
 #include "ast.h"
+#include "flattern.h"
 #include "parser.h"
 #include "table.h"
-#include "flattern.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -103,7 +103,7 @@ int main() {
   ASTNode stmt;
   flattern(root, &stmt);
   ASTNode *p = &stmt;
-  while((p = p->rhs) != 0) {
+  while ((p = p->rhs) != 0) {
     print_ast(p);
     printf("\n");
   }

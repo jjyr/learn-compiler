@@ -1,6 +1,7 @@
-#include <stdio.h>
 #include "ast.h"
+#include "error.h"
 #include "token.h"
+#include <stdio.h>
 
 int alloc_cur = 0;
 
@@ -8,7 +9,7 @@ ASTNode *alloc_node() {
   if (alloc_cur == MAX_NODE) {
     error("can't allocate ASTNode, max: %d", MAX_NODE);
   }
-  ASTNode * n = &ast_node_pool[alloc_cur++];
+  ASTNode *n = &ast_node_pool[alloc_cur++];
   n->lhs = 0;
   n->rhs = 0;
   n->token = 0;
@@ -54,4 +55,3 @@ void print_ast(ASTNode *node) {
     exit(-1);
   }
 }
-
