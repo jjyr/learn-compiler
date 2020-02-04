@@ -1,9 +1,9 @@
 #include "parser.h"
 #include "error.h"
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
 #define MSG_LEN 8
 
@@ -31,7 +31,7 @@ static void __attribute__((noreturn)) parse_error(Parser *p, char *expected) {
       p->cur, expected, err_msg);
 }
 
-static char next_char(Parser *p) {
+static char next_c(Parser *p) {
   if (p->cur == p->len)
     return '\0';
   while (p->source[p->cur] == ' ') {
@@ -40,24 +40,27 @@ static char next_char(Parser *p) {
   return p->source[p->cur];
 }
 
-static int try_consume(Parser *p, char *str, int must_consume) {
-  next_char(p);
+static int match_str(Parser *p, char *str, int consume) {
+  next_c(p);
   int len = strlen(str);
   int ret = memcmp(&p->source[p->cur], str, len);
   if (ret == 0) {
     p->cur += len;
-  } else if (must_consume) {
+  } else if (consume) {
     parse_error(p, str);
   }
   return ret == 0;
 }
 
 static Token read_token(Parser *p) {
-  char c = next_char(p);
+  char c = next_c(p);
   switch (c) {
   case 'p':
-    if (try_consume(p, "program", 0))
+    if (match_str(p, "program", 0))
       return Program;
+  case 'l':
+    if (match_str(p, "let", 0))
+      return Let;
   case '+':
     p->cur++;
     return Add;
@@ -76,10 +79,11 @@ static Token read_token(Parser *p) {
   case '9':
     return Fixnum;
   case 'r':
-    if (try_consume(p, "read", 0))
+    if (match_str(p, "read", 0))
       return Read;
+  default:
+    return Var;
   }
-  parse_error(p, "token");
 }
 
 static int read_fixnum(Parser *p) {
@@ -91,8 +95,8 @@ static int read_fixnum(Parser *p) {
     if (c > '9' || c < '0') {
       break;
     }
-    n += pow(10, i) * (c - '0');
-    i ++;
+    n = n * 10 + i * (c - '0');
+    i++;
   }
   p->cur--;
   if (i == 0) {
@@ -101,8 +105,28 @@ static int read_fixnum(Parser *p) {
   return n;
 }
 
+static char *read_var(Parser *p) {
+  int cur = p->cur;
+  int i = 0;
+  char *var = malloc(10);
+  while (i < 9) {
+    int c = p->source[p->cur++];
+    if (c > 'z' || c < 'a') {
+      break;
+    }
+    var[i] = c;
+    i++;
+  }
+  var[i] = '\0';
+  p->cur--;
+  if (i == 0) {
+    parse_error(p, "var");
+  }
+  return var;
+}
+
 static ASTNode *read_exp(Parser *p) {
-  int in_paren = try_consume(p, "(", 0);
+  int in_paren = match_str(p, "(", 0);
   Token token = read_token(p);
   ASTNode *n = alloc_node();
   n->token = token;
@@ -119,11 +143,26 @@ static ASTNode *read_exp(Parser *p) {
     break;
   case Read:
     break;
+  case Let:
+    match_str(p, "(", 1);
+    match_str(p, "[", 1);
+    ASTNode *val_n = alloc_node();
+    val_n->value = (size_t)read_var(p);
+    next_c(p);
+    n->value = read_fixnum(p);
+    n->lhs = val_n;
+    match_str(p, "]", 1);
+    match_str(p, ")", 1);
+    n->rhs = read_exp(p);
+    break;
+  case Var:
+    n->value = (size_t)read_var(p);
+    break;
   default:
     parse_error(p, "token");
   }
   if (in_paren)
-    try_consume(p, ")", 1);
+    match_str(p, ")", 1);
   return n;
 }
 

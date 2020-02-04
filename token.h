@@ -6,6 +6,8 @@ typedef enum token {
   Read,
   Exp,
   Program,
+  Let,
+  Var,
 } Token;
 
 #define _TOKEN_H

@@ -35,34 +35,9 @@ void partial_eval(ASTNode *node) {
   }
 }
 
-void print_ast(ASTNode *node) {
-  switch (node->token) {
-  case Fixnum:
-    printf("%d", node->value);
-    break;
-  case Neg:
-    printf("(- ");
-    print_ast(node->lhs);
-    printf(")");
-    break;
-  case Add:
-    printf("(+ ");
-    print_ast(node->lhs);
-    printf(" ");
-    print_ast(node->rhs);
-    printf(")");
-    break;
-  case Read:
-    printf("(read)");
-    break;
-  default:
-    printf("\nfailed to parse token %d\n", node->token);
-    exit(-1);
-  }
-}
-
 int main() {
-  char s[] = "(+ (read) (- (+ 5 3)))";
+  // char s[] = "(+ (read) (- (+ 5 3)))";
+  char s[] = "(let ([x 32]) (+ (let ([x 10]) x) x))";
   ASTNode *root = parse_ast(s);
   printf("inputs:\n");
   print_ast(root);

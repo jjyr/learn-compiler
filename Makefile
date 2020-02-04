@@ -1,7 +1,7 @@
 CC := cc
 CFLAGS := -I . -g
 
-FILES := main.c parser.c error.c
+FILES := main.c parser.c error.c ast.c
 
 build: ${FILES}
 	${CC} ${CFLAGS} $^
