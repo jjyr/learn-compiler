@@ -2,6 +2,20 @@
 #include "ast.h"
 #include "token.h"
 
+int alloc_cur = 0;
+
+ASTNode *alloc_node() {
+  if (alloc_cur == MAX_NODE) {
+    error("can't allocate ASTNode, max: %d", MAX_NODE);
+  }
+  ASTNode * n = &ast_node_pool[alloc_cur++];
+  n->lhs = 0;
+  n->rhs = 0;
+  n->token = 0;
+  n->value = 0;
+  return n;
+}
+
 void print_ast(ASTNode *node) {
   switch (node->token) {
   case Fixnum:
@@ -28,6 +42,11 @@ void print_ast(ASTNode *node) {
   case Let:
     printf("(let ([%s %ld]) ", (char *)node->lhs->value, node->value);
     print_ast(node->rhs);
+    printf(")");
+    break;
+  case Assign:
+    printf("(assign %s ", (char *)node->value);
+    print_ast(node->lhs);
     printf(")");
     break;
   default:

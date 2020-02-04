@@ -7,15 +7,6 @@
 
 #define MSG_LEN 8
 
-int alloc_cur = 0;
-
-ASTNode *alloc_node() {
-  if (alloc_cur == MAX_NODE) {
-    error("can't allocate ASTNode, max: %d", MAX_NODE);
-  }
-  return &ast_node_pool[alloc_cur++];
-}
-
 void init_parser(Parser *p, char *source) {
   p->source = source;
   p->len = strlen(source);

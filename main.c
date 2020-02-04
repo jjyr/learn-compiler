@@ -1,6 +1,7 @@
 #include "ast.h"
 #include "parser.h"
 #include "table.h"
+#include "flattern.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -95,6 +96,18 @@ int main() {
   table_init(&t);
   uniquify(root, &t);
   print_ast(root);
+  printf("\n");
+  printf("\n");
+
+  printf("flattern:\n");
+  ASTNode stmt;
+  flattern(root, &stmt);
+  ASTNode *p = &stmt;
+  while((p = p->rhs) != 0) {
+    print_ast(p);
+    printf("\n");
+  }
+  printf("\n");
   printf("\n");
   return 0;
 }

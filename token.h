@@ -8,6 +8,7 @@ typedef enum token {
   Program,
   Let,
   Var,
+  Assign,
 } Token;
 
 #define _TOKEN_H
