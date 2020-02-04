@@ -1,13 +1,55 @@
 #include "ast.h"
 #include "parser.h"
+#include "table.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 // parse racket to ast
 ASTNode *parse_ast(char *source) {
   Parser p;
   init_parser(&p, source);
   return parse_program(&p);
+}
+
+char *rewrite_var(char *p, int num) {
+  int len = strlen(p);
+  char *buf = malloc(len + 2);
+  strcpy(buf, p);
+  buf[len] = num + '0';
+  buf[len + 1] = '\0';
+  free((void *)p);
+  return buf;
+}
+
+void uniquify(ASTNode *node, Table *t) {
+  int cnt;
+  int len;
+  char *buf;
+  switch (node->token) {
+  case Neg:
+    uniquify(node->lhs, t);
+    break;
+  case Add:
+    uniquify(node->lhs, t);
+    uniquify(node->rhs, t);
+    break;
+  case Var:
+    cnt = table_get(t, (char *)node->value);
+    node->value = (size_t)rewrite_var((char *)node->value, cnt);
+    break;
+  case Let:
+    cnt = table_get(t, (char *)node->lhs->value);
+    // increase suffix
+    table_store(t, (char *)node->lhs->value, cnt + 1);
+    uniquify(node->rhs, t);
+    // set back suffix
+    table_store(t, (char *)node->lhs->value, cnt);
+    node->lhs->value = (size_t)rewrite_var((char *)node->lhs->value, cnt + 1);
+    break;
+  default:
+    break;
+  }
 }
 
 void partial_eval(ASTNode *node) {
@@ -45,6 +87,13 @@ int main() {
   printf("\n");
   printf("partial eval:\n");
   partial_eval(root);
+  print_ast(root);
+  printf("\n");
+  printf("\n");
+  printf("uniquify:\n");
+  Table t;
+  table_init(&t);
+  uniquify(root, &t);
   print_ast(root);
   printf("\n");
   return 0;

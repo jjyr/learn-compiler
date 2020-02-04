@@ -26,7 +26,7 @@ void print_ast(ASTNode *node) {
     printf("%s", (char *)node->value);
     break;
   case Let:
-    printf("(let ([ %s %ld]) ", (char *)node->lhs->value, node->value);
+    printf("(let ([%s %ld]) ", (char *)node->lhs->value, node->value);
     print_ast(node->rhs);
     printf(")");
     break;

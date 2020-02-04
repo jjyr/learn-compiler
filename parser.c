@@ -88,18 +88,16 @@ static Token read_token(Parser *p) {
 
 static int read_fixnum(Parser *p) {
   int cur = p->cur;
-  int i = 0;
   int n = 0;
   while (1) {
     int c = p->source[p->cur++];
     if (c > '9' || c < '0') {
       break;
     }
-    n = n * 10 + i * (c - '0');
-    i++;
+    n = n * 10 + (c - '0');
   }
   p->cur--;
-  if (i == 0) {
+  if (cur == p->cur) {
     parse_error(p, "fixnum");
   }
   return n;
