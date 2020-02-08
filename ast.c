@@ -1,6 +1,6 @@
 #include "ast.h"
+#include "defs.h"
 #include "error.h"
-#include "token.h"
 #include <stdio.h>
 
 int alloc_cur = 0;
@@ -45,13 +45,35 @@ void print_ast(ASTNode *node) {
     print_ast(node->rhs);
     printf(")");
     break;
+  case REG:
+    printf("(reg ");
+    switch(node->value) {
+    case RAX:
+      printf("RAX");
+      break;
+    default:
+      error("unexpected reg");
+    }
+    printf(")");
+    break;
   case Assign:
     printf("(assign %s ", (char *)node->value);
     print_ast(node->lhs);
     printf(")");
     break;
+  case MOVQ:
+    printf("MOVQ %s ", (char *)node->value);
+    print_ast(node->lhs);
+    break;
+  case ADDQ:
+    printf("ADDQ %s ", (char *)node->value);
+    print_ast(node->lhs);
+    break;
+  case CALLQ:
+    printf("CALLQ %s", (char *)node->value);
+    break;
   default:
-    printf("\nfailed to parse token %d\n", node->token);
+    printf("\nprint_ast: failed to parse token %d\n", node->token);
     exit(-1);
   }
 }

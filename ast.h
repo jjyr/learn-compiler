@@ -1,5 +1,5 @@
 #ifndef _AST_H
-#include "token.h"
+#include "defs.h"
 #include <stdlib.h>
 
 #define MAX_NODE 1024

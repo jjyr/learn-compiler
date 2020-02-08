@@ -1,6 +1,6 @@
 #include "ast.h"
-#include "flattern.h"
 #include "parser.h"
+#include "pass_defs.h"
 #include "table.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -78,9 +78,15 @@ void partial_eval(ASTNode *node) {
   }
 }
 
-int main() {
-  // char s[] = "(+ (read) (- (+ 5 3)))";
-  char s[] = "(let ([x 32]) (+ (let ([x 10]) x) x))";
+void print_stmt(ASTNode *p) {
+  while (p != 0) {
+    print_ast(p);
+    printf("\n");
+    p = p->rhs;
+  }
+}
+
+int test(char s[]) {
   ASTNode *root = parse_ast(s);
   printf("inputs:\n");
   print_ast(root);
@@ -100,14 +106,18 @@ int main() {
   printf("\n");
 
   printf("flattern:\n");
-  ASTNode stmt;
-  flattern(root, &stmt);
-  ASTNode *p = &stmt;
-  while ((p = p->rhs) != 0) {
-    print_ast(p);
-    printf("\n");
-  }
+  root = flattern(root);
+  print_stmt(root);
   printf("\n");
   printf("\n");
+  select_inst(root);
+  print_stmt(root);
+  printf("\n");
+  printf("\n");
+}
+
+int main() {
+  test("(+ (read) (let ([x 32]) (+ (let ([x 10]) x) x)))");
+  // test("(- (+ 5 3))");
   return 0;
 }

@@ -1,14 +1,15 @@
 #include "ast.h"
+#include "defs.h"
 #include "error.h"
-#include "token.h"
 #include <stdio.h>
 #include <string.h>
 
-ASTNode *flattern_ast(ASTNode *node, ASTNode *prev);
+ASTNode *flattern2(ASTNode *node, ASTNode *prev);
 
-int flattern(ASTNode *node, ASTNode *root) {
-  flattern_ast(node, root);
-  return 0;
+ASTNode *flattern(ASTNode *node) {
+  ASTNode *root = alloc_node();
+  flattern2(node, root);
+  return root->rhs;
 }
 
 static int cnt = 0;
@@ -22,16 +23,9 @@ char *alloc_var() {
   return s;
 }
 
-ASTNode *create_assign_node(ASTNode *value_node, ASTNode *prev,
-                            char *var_name) {
+ASTNode *create_assign_node(ASTNode *value_node, ASTNode *prev) {
   ASTNode *node = alloc_node();
   node->token = Assign;
-  // allocate a tmp name
-  if (var_name == 0) {
-    node->value = (size_t)alloc_var();
-  } else {
-    node->value = (size_t)var_name;
-  }
   node->lhs = value_node;
   // use rhs to construct a linked list
   if (prev != 0) {
@@ -41,25 +35,36 @@ ASTNode *create_assign_node(ASTNode *value_node, ASTNode *prev,
 }
 
 /* return a Var node */
-ASTNode *flattern_ast(ASTNode *node, ASTNode *prev) {
+ASTNode *flattern2(ASTNode *node, ASTNode *prev) {
   ASTNode *stmt;
   ASTNode *t;
   switch (node->token) {
   case Neg:
-    stmt = create_assign_node(node, prev, (char *)0);
-    node->lhs = flattern_ast(node->lhs, stmt);
+    stmt = create_assign_node(node, prev);
+    node->lhs = flattern2(node->lhs, stmt);
+    stmt->value = (size_t)alloc_var();
+    t = alloc_node();
+    t->token = Var;
+    t->value = stmt->value;
+    return t;
+  case Read:
+    stmt = create_assign_node(node, prev);
+    stmt->value = (size_t)alloc_var();
     t = alloc_node();
     t->token = Var;
     t->value = stmt->value;
     return t;
   case Add:
-    stmt = create_assign_node(node, 0, (char *)0);
+    stmt = create_assign_node(node, 0);
     // lhs is the next stmt after prev
-    node->lhs = flattern_ast(node->lhs, prev);
+    node->lhs = flattern2(node->lhs, prev);
     // lhs is the next next stmt after prev
-    node->rhs = flattern_ast(node->rhs, prev->rhs);
-    // stmt is the next next next stmt after prev
-    prev->rhs->rhs = stmt;
+    node->rhs = flattern2(node->rhs, prev->rhs);
+    // stmt is the last stmt
+    while (prev->rhs != 0)
+      prev = prev->rhs;
+    prev->rhs = stmt;
+    stmt->value = (size_t)alloc_var();
     t = alloc_node();
     t->token = Var;
     t->value = stmt->value;
@@ -71,10 +76,11 @@ ASTNode *flattern_ast(ASTNode *node, ASTNode *prev) {
     t = alloc_node();
     t->token = Fixnum;
     t->value = node->value;
-    stmt = create_assign_node(t, prev, (char *)node->lhs->value);
+    stmt = create_assign_node(t, prev);
+    stmt->value = node->lhs->value;
     // increase suffix
-    return flattern_ast(node->rhs, stmt);
+    return flattern2(node->rhs, stmt);
   default:
-    error("hehe");
+    error("flattern unexpected\n");
   }
 }

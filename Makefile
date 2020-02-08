@@ -1,7 +1,7 @@
 CC := cc
 CFLAGS := -I . -g
 
-FILES := main.c parser.c error.c ast.c table.c flattern.c
+FILES := main.c parser.c error.c ast.c table.c flattern.c select_inst.c
 
 build: ${FILES}
 	${CC} ${CFLAGS} $^
