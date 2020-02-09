@@ -1,4 +1,6 @@
-#ifndef _TOKEN_H
+#ifndef _DEFS_H
+/* common defines */
+
 typedef enum token {
   Neg,
   Add,
@@ -18,5 +20,5 @@ typedef enum token {
   RAX,
 } Token;
 
-#define _TOKEN_H
+#define _DEFS_H
 #endif

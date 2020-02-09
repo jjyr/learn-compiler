@@ -1,4 +1,5 @@
 #include "ast.h"
+#include "ast_printer.h"
 #include "parser.h"
 #include "pass_defs.h"
 #include "table.h"
@@ -78,9 +79,9 @@ void partial_eval(ASTNode *node) {
   }
 }
 
-void print_stmt(ASTNode *p) {
+void print_stmt(ASTNode *p, ASTMode mod) {
   while (p != 0) {
-    print_ast(p);
+    print_ast(p, mod);
     printf("\n");
     p = p->rhs;
   }
@@ -89,31 +90,32 @@ void print_stmt(ASTNode *p) {
 int test(char s[]) {
   ASTNode *root = parse_ast(s);
   printf("inputs:\n");
-  print_ast(root);
+  print_ast(root, VarName);
   printf("\n");
   printf("\n");
   printf("partial eval:\n");
   partial_eval(root);
-  print_ast(root);
+  print_ast(root, VarName);
   printf("\n");
   printf("\n");
   printf("uniquify:\n");
   Table t;
   table_init(&t);
   uniquify(root, &t);
-  print_ast(root);
+  print_ast(root, VarName);
   printf("\n");
   printf("\n");
-
   printf("flattern:\n");
   root = flattern(root);
-  print_stmt(root);
+  print_stmt(root, VarName);
   printf("\n");
   printf("\n");
   select_inst(root);
-  print_stmt(root);
+  print_stmt(root, VarName);
   printf("\n");
   printf("\n");
+  assign_homes(root);
+  print_stmt(root, StackLoc);
 }
 
 int main() {

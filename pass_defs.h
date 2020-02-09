@@ -1,7 +1,8 @@
-#ifndef _FLATTERN_H
+#ifndef _PASS_DEFS_H
 
-ASTNode * flattern(ASTNode *root);
+ASTNode *flattern(ASTNode *root);
 void select_inst(ASTNode *root);
+void assign_homes(ASTNode *root);
 
-#define _FLATTERN_H
+#define _PASS_DEFS_H
 #endif

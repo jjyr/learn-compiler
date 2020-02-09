@@ -11,10 +11,7 @@ typedef struct ast_node {
     size_t value;
 } ASTNode;
 
-void print_ast(ASTNode *node);
-
 ASTNode ast_node_pool[MAX_NODE];
-
 ASTNode * alloc_node();
 
 #define _AST_H

@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include <string.h>
 
-/* return a Var node */
 void select_inst(ASTNode *node) {
   // used for rewrite Add node
   ASTNode *assign;
