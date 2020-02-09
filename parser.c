@@ -136,6 +136,7 @@ static ASTNode *read_exp(Parser *p) {
     match_str(p, "(", 1);
     match_str(p, "[", 1);
     ASTNode *val_n = alloc_node();
+    val_n->token = Var;
     val_n->value = (size_t)read_var(p);
     next_c(p);
     n->value = read_fixnum(p);

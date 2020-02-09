@@ -79,9 +79,9 @@ void partial_eval(ASTNode *node) {
   }
 }
 
-void print_stmt(ASTNode *p, ASTMode mod) {
+void print_stmt(ASTNode *p) {
   while (p != 0) {
-    print_ast(p, mod);
+    print_ast(p);
     printf("\n");
     p = p->rhs;
   }
@@ -90,32 +90,39 @@ void print_stmt(ASTNode *p, ASTMode mod) {
 int test(char s[]) {
   ASTNode *root = parse_ast(s);
   printf("inputs:\n");
-  print_ast(root, VarName);
+  print_ast(root);
   printf("\n");
   printf("\n");
   printf("partial eval:\n");
   partial_eval(root);
-  print_ast(root, VarName);
+  print_ast(root);
   printf("\n");
   printf("\n");
   printf("uniquify:\n");
   Table t;
   table_init(&t);
   uniquify(root, &t);
-  print_ast(root, VarName);
+  print_ast(root);
   printf("\n");
   printf("\n");
   printf("flattern:\n");
   root = flattern(root);
-  print_stmt(root, VarName);
+  print_stmt(root);
   printf("\n");
   printf("\n");
+  printf("select instructions:\n");
   select_inst(root);
-  print_stmt(root, VarName);
+  print_stmt(root);
   printf("\n");
   printf("\n");
+  printf("assign homes:\n");
   assign_homes(root);
-  print_stmt(root, StackLoc);
+  print_stmt(root);
+  printf("\n");
+  printf("\n");
+  printf("patch instructions:\n");
+  patch_inst(root);
+  print_stmt(root);
 }
 
 int main() {

@@ -1,7 +1,7 @@
 CC := cc
 CFLAGS := -I . -g
 
-FILES := main.c parser.c error.c ast.c table.c flattern.c select_inst.c ast_printer.c assign_homes.c
+FILES := main.c parser.c error.c ast.c table.c flattern.c select_inst.c ast_printer.c assign_homes.c patch_inst.c
 
 build: ${FILES}
 	${CC} ${CFLAGS} $^

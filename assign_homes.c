@@ -10,15 +10,20 @@
 static int assign_count = 0;
 
 /* assign variables to stack */
-size_t assign_loc(size_t v, Table *t) {
-  size_t n = table_get(t, (char *)v);
+void assign_loc(ASTNode *val, Table *t) {
+  if (val->token != Var) {
+    return;
+  }
+  val->token = STACK_LOC;
+  size_t n = table_get(t, (char *)val->value);
   if (n == 0) {
     /* assign a stack location to var */
     assign_count++;
     n = assign_count;
-    table_store(t, (char *)v, assign_count);
+    table_store(t, (char *)val->value, assign_count);
   }
-  return n;
+  val->value = -8 * n;
+  return;
 }
 
 void assign_homes_exp(ASTNode *node, Table *t) {
@@ -28,11 +33,12 @@ void assign_homes_exp(ASTNode *node, Table *t) {
     assign_homes_exp(node->rhs, t);
     break;
   case Var:
-    node->value = assign_loc(node->value, t);
+    assign_loc(node, t);
     break;
   case Read:
   case REG:
   case Fixnum:
+  case STACK_LOC:
     break;
   default:
     error("assign exp unexpected %d", node->token);
@@ -46,7 +52,7 @@ void assign_homes(ASTNode *node) {
     switch (node->token) {
     case MOVQ:
     case ADDQ:
-      node->value = assign_loc(node->value, &t);
+      assign_loc((ASTNode *)node->value, &t);
       assign_homes_exp(node->lhs, &t);
     }
     node = node->rhs;

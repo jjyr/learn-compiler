@@ -14,13 +14,16 @@ ASTNode *flattern(ASTNode *node) {
 
 static int cnt = 0;
 
-char *alloc_var() {
+size_t alloc_var() {
   cnt++;
+  ASTNode *t = alloc_node();
+  t->token = Var;
   char buf[256];
   sprintf(buf, "tmp%d", cnt);
   char *s = malloc(strlen(buf) + 1);
   strcpy(s, buf);
-  return s;
+  t->value = (size_t)s;
+  return (size_t)t;
 }
 
 ASTNode *create_assign_node(ASTNode *value_node, ASTNode *prev) {
@@ -42,18 +45,12 @@ ASTNode *flattern2(ASTNode *node, ASTNode *prev) {
   case Neg:
     stmt = create_assign_node(node, prev);
     node->lhs = flattern2(node->lhs, stmt);
-    stmt->value = (size_t)alloc_var();
-    t = alloc_node();
-    t->token = Var;
-    t->value = stmt->value;
-    return t;
+    stmt->value = alloc_var();
+    return (ASTNode *)stmt->value;
   case Read:
     stmt = create_assign_node(node, prev);
-    stmt->value = (size_t)alloc_var();
-    t = alloc_node();
-    t->token = Var;
-    t->value = stmt->value;
-    return t;
+    stmt->value = alloc_var();
+    return (ASTNode *)stmt->value;
   case Add:
     stmt = create_assign_node(node, 0);
     // lhs is the next stmt after prev
@@ -64,11 +61,8 @@ ASTNode *flattern2(ASTNode *node, ASTNode *prev) {
     while (prev->rhs != 0)
       prev = prev->rhs;
     prev->rhs = stmt;
-    stmt->value = (size_t)alloc_var();
-    t = alloc_node();
-    t->token = Var;
-    t->value = stmt->value;
-    return t;
+    stmt->value = alloc_var();
+    return (ASTNode *)stmt->value;
   case Fixnum:
   case Var:
     return node;
@@ -77,7 +71,7 @@ ASTNode *flattern2(ASTNode *node, ASTNode *prev) {
     t->token = Fixnum;
     t->value = node->value;
     stmt = create_assign_node(t, prev);
-    stmt->value = node->lhs->value;
+    stmt->value = (size_t)node->lhs;
     // increase suffix
     return flattern2(node->rhs, stmt);
   default:

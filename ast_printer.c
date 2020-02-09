@@ -4,45 +4,35 @@
 #include "error.h"
 #include <stdio.h>
 
-void print_var(size_t value, ASTMode mod) {
-  switch (mod) {
-  case VarName:
-    printf("%s", (char *)value);
-    break;
-  case StackLoc:
-    printf("(deref rbp %ld)", value * -8);
-    break;
-  default:
-    error("unexpected value");
-  }
-}
-
-void print_ast(ASTNode *node, ASTMode mod) {
+void print_ast(ASTNode *node) {
   switch (node->token) {
   case Fixnum:
     printf("%ld", node->value);
     break;
   case Neg:
     printf("(- ");
-    print_ast(node->lhs, mod);
+    print_ast(node->lhs);
     printf(")");
     break;
   case Add:
     printf("(+ ");
-    print_ast(node->lhs, mod);
+    print_ast(node->lhs);
     printf(" ");
-    print_ast(node->rhs, mod);
+    print_ast(node->rhs);
     printf(")");
     break;
   case Read:
     printf("(read)");
     break;
   case Var:
-    print_var(node->value, mod);
+    printf("%s", (char *)node->value);
+    break;
+  case STACK_LOC:
+    printf("(deref RBP %ld)", node->value);
     break;
   case Let:
     printf("(let ([%s %ld]) ", (char *)node->lhs->value, node->value);
-    print_ast(node->rhs, mod);
+    print_ast(node->rhs);
     printf(")");
     break;
   case REG:
@@ -58,22 +48,22 @@ void print_ast(ASTNode *node, ASTMode mod) {
     break;
   case Assign:
     printf("(assign ");
-    print_var(node->value, mod);
+    print_ast((ASTNode *)node->value);
     printf(" ");
-    print_ast(node->lhs, mod);
+    print_ast(node->lhs);
     printf(")");
     break;
   case MOVQ:
     printf("MOVQ ");
-    print_ast(node->lhs, mod);
+    print_ast(node->lhs);
     printf(" ");
-    print_var(node->value, mod);
+    print_ast((ASTNode *)node->value);
     break;
   case ADDQ:
     printf("ADDQ ");
-    print_ast(node->lhs, mod);
+    print_ast(node->lhs);
     printf(" ");
-    print_var(node->value, mod);
+    print_ast((ASTNode *)node->value);
     break;
   case CALLQ:
     printf("CALLQ %s", (char *)node->value);

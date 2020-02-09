@@ -18,6 +18,8 @@ typedef enum token {
   CALLQ,
   /* registers */
   RAX,
+  /* stack location */
+  STACK_LOC,
 } Token;
 
 #define _DEFS_H
