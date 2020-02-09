@@ -42,7 +42,7 @@ void select_inst(ASTNode *node) {
       assign->lhs = t;
       assign->value = node->value;
       node->token = CALLQ;
-      char s[] = "read_int";
+      char * s = "read_int";
       node->value = (size_t)s;
       if (node->rhs != 0)
         assign->rhs = node->rhs;
