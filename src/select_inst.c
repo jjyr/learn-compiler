@@ -12,8 +12,8 @@ void select_inst(ASTNode *node) {
   ASTNode *other;
   ASTNode *t;
   // skip program
-  node = node->rhs;
-  while (node != 0) {
+  while (node ->rhs  != 0) {
+    node = node->rhs;
     switch (node->lhs->token) {
     case Add:
       if (node->lhs->lhs->token == Var || node->lhs->lhs->token == Fixnum) {
@@ -58,6 +58,14 @@ void select_inst(ASTNode *node) {
     default:
       error("select_inst unexpected\n");
     }
-    node = node->rhs;
   }
+  // return last value to RAX
+  t = alloc_node();
+  t->token = REG;
+  t->value = RAX;
+  ASTNode * ret_node = alloc_node();
+  ret_node->token = MOVQ;
+  ret_node->lhs = (ASTNode *)node->value;
+  ret_node->value = (size_t)t;
+  node->rhs = ret_node;
 }

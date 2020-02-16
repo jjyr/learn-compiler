@@ -12,7 +12,7 @@ void patch_inst(ASTNode *node) {
     switch (node->token) {
     case MOVQ:
     case ADDQ:
-      if (node->lhs->token == STACK_LOC) {
+      if (node->lhs->token == STACK_LOC && ((ASTNode *)node->value)->token == STACK_LOC) {
         /* need patch, use RAX as temp register */
         ASTNode *reg = alloc_node();
         reg->token = REG;

@@ -60,7 +60,12 @@ void print_asm(FILE *f, ASTNode *node) {
     }
     node = node->rhs;
   }
+  // print out return value
   fprintf(f, "MOVQ %%rax, %%rdi\n");
   fprintf(f, "CALLQ print_int\n");
+  // end call
+  fprintf(f, "ADDQ $%d, %%rsp\n", info->variables_cnt * 8);
+  fprintf(f, "MOVQ $0, %%rax\n");
+  fprintf(f, "POPQ %%rbp\n");
   fprintf(f, "retq\n");
 }

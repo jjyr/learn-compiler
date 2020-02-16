@@ -7,10 +7,13 @@ FILES := main.c parser.c error.c ast.c table.c flattern.c select_inst.c ast_prin
 FILES := $(addprefix ${SRC}/, ${FILES})
 
 build: ${FILES}
-	${CC} ${CFLAGS} -o ${BUILD}/a.out $^
+	${CC} ${CFLAGS} -o ${BUILD}/compiler $^
+
+runtime: ${SRC}/runtime.c
+	${CC} ${CFLAGS} -c -o ${BUILD}/runtime.o $^
 
 run: build
-	${BUILD}/a.out
+	${BUILD}/compiler
 
 clean: 
 	rm ${BUILD}/*

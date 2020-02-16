@@ -15,6 +15,10 @@ MOVQ -8(%rbp), %rax
 MOVQ %rax, -40(%rbp)
 MOVQ -32(%rbp), %rax
 ADDQ %rax, -40(%rbp)
+MOVQ -40(%rbp), %rax
 MOVQ %rax, %rdi
 CALLQ print_int
+ADDQ $40, %rsp
+MOVQ $0, %rax
+POPQ %rbp
 retq
