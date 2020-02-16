@@ -22,5 +22,9 @@ typedef enum token {
   STACK_LOC,
 } Token;
 
+typedef struct {
+  int variables_cnt;
+} CallInfo;
+
 #define _DEFS_H
 #endif

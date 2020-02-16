@@ -7,9 +7,8 @@
 ASTNode *flattern2(ASTNode *node, ASTNode *prev);
 
 ASTNode *flattern(ASTNode *node) {
-  ASTNode *root = alloc_node();
-  flattern2(node, root);
-  return root->rhs;
+  flattern2(node->lhs, node);
+  return node;
 }
 
 static int cnt = 0;

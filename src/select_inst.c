@@ -11,6 +11,8 @@ void select_inst(ASTNode *node) {
   ASTNode *assign;
   ASTNode *other;
   ASTNode *t;
+  // skip program
+  node = node->rhs;
   while (node != 0) {
     switch (node->lhs->token) {
     case Add:

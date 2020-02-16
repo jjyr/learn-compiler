@@ -5,6 +5,7 @@
 #include "error.h"
 #include "table.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 static int assign_count = 0;
@@ -46,6 +47,7 @@ void assign_homes_exp(ASTNode *node, Table *t) {
 }
 
 void assign_homes(ASTNode *node) {
+  ASTNode *program_node = node;
   Table t;
   table_init(&t);
   while (node != 0) {
@@ -57,4 +59,8 @@ void assign_homes(ASTNode *node) {
     }
     node = node->rhs;
   }
+  // attach call info on program node
+  CallInfo *info = (CallInfo *)malloc(sizeof(CallInfo));
+  info->variables_cnt = assign_count;
+  program_node->value = (size_t)info;
 }

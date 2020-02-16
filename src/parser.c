@@ -120,6 +120,9 @@ static ASTNode *read_exp(Parser *p) {
   ASTNode *n = alloc_node();
   n->token = token;
   switch (token) {
+  case Program:
+    n->lhs = read_exp(p);
+    break;
   case Add:
     n->lhs = read_exp(p);
     n->rhs = read_exp(p);
@@ -157,3 +160,10 @@ static ASTNode *read_exp(Parser *p) {
 }
 
 ASTNode *parse_program(Parser *p) { return read_exp(p); }
+
+// parse racket to ast
+ASTNode *parse_ast(char *source) {
+  Parser p;
+  init_parser(&p, source);
+  return parse_program(&p);
+}

@@ -1,4 +1,3 @@
-#include "ast_printer.h"
 #include "ast.h"
 #include "defs.h"
 #include "error.h"
@@ -8,6 +7,11 @@ void print_ast(ASTNode *node) {
   switch (node->token) {
   case Fixnum:
     printf("%ld", node->value);
+    break;
+  case Program:
+    printf("(program ");
+    print_ast(node->lhs);
+    printf(")");
     break;
   case Neg:
     printf("(- ");
@@ -71,5 +75,13 @@ void print_ast(ASTNode *node) {
   default:
     printf("\nprint_ast: failed to parse token %d\n", node->token);
     exit(-1);
+  }
+}
+
+void print_stmt(ASTNode *p) {
+  while (p != 0) {
+    print_ast(p);
+    printf("\n");
+    p = p->rhs;
   }
 }
