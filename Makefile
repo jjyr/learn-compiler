@@ -6,6 +6,8 @@ BUILD := build
 FILES := main.c parser.c error.c ast.c table.c flattern.c select_inst.c ast_printer.c assign_homes.c patch_inst.c asm_printer.c uniquify.c partial_eval.c
 FILES := $(addprefix ${SRC}/, ${FILES})
 
+.PHONY: build runtime run clean
+
 build: ${FILES}
 	${CC} ${CFLAGS} -o ${BUILD}/compiler $^
 
