@@ -34,7 +34,7 @@ fn uniquify_inner(node: Box<Node>, cxt: &mut HashMap<String, usize>) -> Box<Node
         }
         _ => (token, value),
     };
-    Box::new(Node { token, value })
+    Box::new(Node::new(token, value))
 }
 
 pub fn uniquify(node: Box<Node>) -> Box<Node> {

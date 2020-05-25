@@ -30,6 +30,11 @@ pub fn print_ast(node: Box<Node>) {
             print_ast(node);
             print!(")");
         }
+        Assign(var, node) => {
+            print!("(assign {} ", var);
+            print_ast(node);
+            print!(")");
+        }
         // STACK_LOC => {
         //     print!("(deref RBP {:?})", node.value);
         // }
@@ -41,13 +46,6 @@ pub fn print_ast(node: Box<Node>) {
         //     _ =>
         //       panic!("unexpected reg"),
         //     }
-        //     print!(")");
-        //   }
-        //   Assign => {
-        //     print!("(assign ");
-        //     print_ast((ASTNode *)node.value);
-        //     print!(" ");
-        //     print_ast(node.lhs);
         //     print!(")");
         //   }
         //   MOVQ => {
@@ -71,10 +69,9 @@ pub fn print_ast(node: Box<Node>) {
     }
 }
 
-// void print_stmt(ASTNode *p) {
-//   while (p != 0) {
-//     print_ast(p);
-//     print!("\n");
-//     p = p.rhs;
-//   }
-// }
+pub fn print_stmt(node_list: Vec<Box<Node>>) {
+    for node in node_list {
+        print_ast(node);
+        println!();
+    }
+}

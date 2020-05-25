@@ -26,5 +26,5 @@ pub fn partial_eval(node: Box<Node>) -> Box<Node> {
         }
         _ => (token, value),
     };
-    Box::new(Node { token, value })
+    Box::new(Node::new(token, value))
 }

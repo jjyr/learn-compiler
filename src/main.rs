@@ -3,7 +3,7 @@ mod ast_printer;
 mod parser;
 mod pass;
 
-use ast_printer::print_ast;
+use ast_printer::{print_ast, print_stmt};
 use parser::Parser;
 
 fn test(s: &str) {
@@ -19,6 +19,10 @@ fn test(s: &str) {
     println!("uniquify:");
     let ast = pass::uniquify(ast);
     print_ast(ast.clone());
+    println!();
+    println!("flattern:");
+    let ast = pass::flattern(ast);
+    print_stmt(ast.clone());
     println!();
 }
 

@@ -29,6 +29,7 @@ pub enum Value {
     Let(String, isize, Box<Node>),
     Fixnum(isize),
     Read,
+    Assign(String, Box<Node>),
 }
 
 impl Value {
