@@ -1,53 +1,38 @@
 use crate::ast::{Node, Token, Value};
 
 pub fn print_ast(node: Box<Node>) {
-    use Token::*;
-    match node.token {
-        Fixnum => match node.value.expect("value") {
-            Value::Fixnum(num) => {
-                print!("{}", num);
-            }
-            val => {
-                panic!("unexpected {:?}", val);
-            }
-        },
-        Program => {
+    use Value::*;
+    match node.value {
+        Fixnum(num) => print!("{}", num),
+        Program(node) => {
             print!("(program ");
-            print_ast(node.lhs.expect("lhs"));
+            print_ast(node);
             print!(")");
         }
-        Neg => {
+        Neg(node) => {
             print!("(- ");
-            print_ast(node.lhs.expect("lhs"));
+            print_ast(node);
             print!(")");
         }
-        Add => {
+        Add(left, right) => {
             print!("(+ ");
-            print_ast(node.lhs.expect("lhs"));
+            print_ast(left);
             print!(" ");
-            print_ast(node.rhs.expect("rhs"));
+            print_ast(right);
             print!(")");
         }
         Read => {
             print!("(read)");
         }
-        Var => match node.value.expect("value") {
-            Value::Var(var) => print!("{}", var),
-            val => {
-                panic!("unexpected {:?}", val);
-            }
-        },
-        STACK_LOC => {
-            print!("(deref RBP {:?})", node.value);
+        Var(var) => print!("{}", var),
+        Let(var, num, node) => {
+            print!("(let ([{} {}]) ", var, num);
+            print_ast(node);
+            print!(")");
         }
-        Let => match node.value.expect("value") {
-            Value::Let(var, num) => {
-                print!("(let ([{} {}]) ", var, num);
-                print_ast(node.lhs.expect("lhs"));
-                print!(")");
-            }
-            val => panic!("unexpected {:?}", val),
-        },
+        // STACK_LOC => {
+        //     print!("(deref RBP {:?})", node.value);
+        // }
         //   REG => {
         //     print!("(reg ");
         //     match (node.value) {

@@ -112,45 +112,31 @@ impl Parser {
 
         let in_paren = self.match_str("(").is_ok();
         let token = self.read_token().expect("token");
-        let mut n = Node::new(token);
-        match token {
-            Program => {
-                n.lhs = Some(self.read_exp());
-            }
-            Add => {
-                n.lhs = Some(self.read_exp());
-                n.rhs = Some(self.read_exp());
-            }
-            Neg => {
-                n.lhs = Some(self.read_exp());
-            }
-            Fixnum => {
-                n.value = Some(Value::Fixnum(self.read_fixnum().expect("fixnum")));
-            }
-            Read => {
-                // only require the token
-            }
+        let value = match token {
+            Program => Value::Program(self.read_exp()),
+            Add => Value::Add(self.read_exp(), self.read_exp()),
+            Neg => Value::Neg(self.read_exp()),
+            Fixnum => Value::Fixnum(self.read_fixnum().expect("fixnum")),
+            Read => Value::Read,
             Let => {
                 self.expect_str("(");
                 self.expect_str("[");
                 let var = self.read_var().expect("var");
                 self.next_char();
                 let bound_value = self.read_fixnum().expect("fixnum");
-                n.value = Some(Value::Let(var, bound_value));
                 self.expect_str("]");
                 self.expect_str(")");
-                n.lhs = Some(self.read_exp());
+                Value::Let(var, bound_value, self.read_exp())
             }
-            Var => {
-                n.value = Some(Value::Var(self.read_var().expect("var")));
-            }
+            Var => Value::Var(self.read_var().expect("var")),
             _ => {
                 panic!("expected token, got {:?}", token);
             }
-        }
+        };
         if in_paren {
             self.expect_str(")");
         }
+        let n = Node::new(token, value);
         return Box::new(n);
     }
 

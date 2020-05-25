@@ -22,9 +22,13 @@ pub enum Token {
 
 #[derive(Debug)]
 pub enum Value {
+    Program(Box<Node>),
+    Add(Box<Node>, Box<Node>),
+    Neg(Box<Node>),
     Var(String),
-    Let(String, isize),
+    Let(String, isize, Box<Node>),
     Fixnum(isize),
+    Read,
 }
 
 pub struct CallInfo {
@@ -34,18 +38,11 @@ pub struct CallInfo {
 #[derive(Debug)]
 pub struct Node {
     pub token: Token,
-    pub lhs: Option<Box<Node>>,
-    pub rhs: Option<Box<Node>>,
-    pub value: Option<Value>,
+    pub value: Value,
 }
 
 impl Node {
-    pub fn new(token: Token) -> Self {
-        Node {
-            token,
-            lhs: None,
-            rhs: None,
-            value: None,
-        }
+    pub fn new(token: Token, value: Value) -> Self {
+        Node { token, value }
     }
 }
