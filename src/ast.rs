@@ -1,4 +1,4 @@
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum Token {
     Neg,
     Add,
@@ -20,7 +20,7 @@ pub enum Token {
     STACK_LOC,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Value {
     Program(Box<Node>),
     Add(Box<Node>, Box<Node>),
@@ -31,11 +31,20 @@ pub enum Value {
     Read,
 }
 
+impl Value {
+    pub fn fixnum(&self) -> isize {
+        match self {
+            Self::Fixnum(num) => *num,
+            _ => panic!("expect Fixnum"),
+        }
+    }
+}
+
 pub struct CallInfo {
     variables_count: usize,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Node {
     pub token: Token,
     pub value: Value,

@@ -1,8 +1,6 @@
 use crate::ast::{Node, Token, Value};
 use std::iter::FromIterator;
 
-const MSG_LEN: usize = 8;
-
 pub struct Parser {
     source: Vec<char>,
     cur: usize,
@@ -28,7 +26,8 @@ impl Parser {
 
     fn match_str(&mut self, expected: &str) -> Result<(), String> {
         self.next_char();
-        let actual = &self.source[self.cur..self.cur + expected.len()];
+        let end_at = std::cmp::min(self.source.len(), self.cur + expected.len());
+        let actual = &self.source[self.cur..end_at];
         let matched = actual == &expected.chars().collect::<Vec<_>>()[..];
         if matched {
             self.cur += expected.len();
@@ -66,7 +65,6 @@ impl Parser {
 
     fn read_var(&mut self) -> Option<String> {
         let prev_cur = self.cur;
-        let mut i = 0;
         let mut var = String::new();
         loop {
             let chr = self.source[self.cur];
