@@ -24,6 +24,10 @@ fn test(s: &str) {
     let ast = pass::flattern(ast);
     print_stmt(ast.clone());
     println!();
+    println!("select inst:");
+    let ast = pass::select_inst(ast);
+    print_stmt(ast.clone());
+    println!();
 }
 
 fn main() {

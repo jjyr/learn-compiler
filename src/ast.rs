@@ -8,14 +8,13 @@ pub enum Token {
     Program,
     Let,
     Var,
+    /* Statements */
     Assign,
     REG,
     /* X86 */
     ADDQ,
     MOVQ,
     CALLQ,
-    /* registers */
-    RAX,
     /* stack location */
     STACK_LOC,
 }
@@ -30,6 +29,16 @@ pub enum Value {
     Fixnum(isize),
     Read,
     Assign(String, Box<Node>),
+    MOVQ {
+        target: Box<Node>,
+        source: Box<Node>,
+    },
+    RAX,
+    CALLQ(&'static str),
+    ADDQ {
+        target: Box<Node>,
+        arg: Box<Node>,
+    },
 }
 
 impl Value {

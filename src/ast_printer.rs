@@ -35,34 +35,27 @@ pub fn print_ast(node: Box<Node>) {
             print_ast(node);
             print!(")");
         }
+        RAX => {
+            print!("(reg RAX)");
+        }
+        MOVQ { target, source } => {
+            print!("MOVQ ");
+            print_ast(target);
+            print!(" ");
+            print_ast(source);
+        }
+        ADDQ { target, arg } => {
+            print!("ADDQ ");
+            print_ast(target);
+            print!(" ");
+            print_ast(arg);
+        }
+        CALLQ(fname) => {
+            print!("CALLQ {}", fname);
+        }
         // STACK_LOC => {
         //     print!("(deref RBP {:?})", node.value);
         // }
-        //   REG => {
-        //     print!("(reg ");
-        //     match (node.value) {
-        //     RAX =>
-        //       print!("RAX"),
-        //     _ =>
-        //       panic!("unexpected reg"),
-        //     }
-        //     print!(")");
-        //   }
-        //   MOVQ => {
-        //     print!("MOVQ ");
-        //     print_ast(node.lhs);
-        //     print!(" ");
-        //     print_ast((ASTNode *)node.value);
-        //   }
-        //   ADDQ => {
-        //     print!("ADDQ ");
-        //     print_ast(node.lhs);
-        //     print!(" ");
-        //     print_ast((ASTNode *)node.value);
-        //   }
-        //   CALLQ => {
-        //     print!("CALLQ %s", (char *)node.value);
-        //   }
         _ => {
             panic!("\nprint_ast: failed to parse token {:?}", node.token);
         }
