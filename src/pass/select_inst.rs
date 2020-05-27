@@ -6,7 +6,7 @@ pub fn select_inst(node_list: Vec<Box<Node>>) -> Vec<Box<Node>> {
     let mut new_node_list = Vec::with_capacity(node_list.len());
 
     for node in node_list {
-        let Node { token, value } = *node;
+        let Node { token: _, value } = *node;
         match value {
             Assign(var_name, sub_node) => {
                 let Node { token, value } = *sub_node;

@@ -1,4 +1,4 @@
-use crate::ast::{Node, Token, Value};
+use crate::ast::*;
 
 pub fn print_ast(node: Box<Node>) {
     use Value::*;
@@ -53,11 +53,8 @@ pub fn print_ast(node: Box<Node>) {
         CALLQ(fname) => {
             print!("CALLQ {}", fname);
         }
-        STACK_LOC(offset) => {
+        StackLoc(offset) => {
             print!("(deref RBP {})", offset);
-        }
-        _ => {
-            panic!("\nprint_ast: failed to parse token {:?}", node.token);
         }
     }
 }

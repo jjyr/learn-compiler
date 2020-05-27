@@ -4,7 +4,6 @@ pub enum Token {
     Add,
     Fixnum,
     Read,
-    Exp,
     Program,
     Let,
     Var,
@@ -16,7 +15,7 @@ pub enum Token {
     MOVQ,
     CALLQ,
     /* stack location */
-    STACK_LOC,
+    StackLoc,
 }
 
 #[derive(Debug, Clone)]
@@ -39,7 +38,7 @@ pub enum Value {
         target: Box<Node>,
         arg: Box<Node>,
     },
-    STACK_LOC(isize),
+    StackLoc(isize),
 }
 
 impl Value {
