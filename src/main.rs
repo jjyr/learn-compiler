@@ -28,6 +28,11 @@ fn test(s: &str) {
     let ast = pass::select_inst(ast);
     print_stmt(ast.clone());
     println!();
+    println!("assign home:");
+    let mut call_info = ast::CallInfo::default();
+    let ast = pass::assign_home(ast, &mut call_info);
+    print_stmt(ast.clone());
+    println!();
 }
 
 fn main() {

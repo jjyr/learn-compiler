@@ -53,9 +53,9 @@ pub fn print_ast(node: Box<Node>) {
         CALLQ(fname) => {
             print!("CALLQ {}", fname);
         }
-        // STACK_LOC => {
-        //     print!("(deref RBP {:?})", node.value);
-        // }
+        STACK_LOC(offset) => {
+            print!("(deref RBP {})", offset);
+        }
         _ => {
             panic!("\nprint_ast: failed to parse token {:?}", node.token);
         }

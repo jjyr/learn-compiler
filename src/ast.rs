@@ -39,6 +39,7 @@ pub enum Value {
         target: Box<Node>,
         arg: Box<Node>,
     },
+    STACK_LOC(isize),
 }
 
 impl Value {
@@ -50,8 +51,9 @@ impl Value {
     }
 }
 
+#[derive(Default)]
 pub struct CallInfo {
-    variables_count: usize,
+    pub vars_count: usize,
 }
 
 #[derive(Debug, Clone)]

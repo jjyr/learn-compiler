@@ -12,7 +12,7 @@ fn uniquify_inner(node: Box<Node>, cxt: &mut HashMap<String, usize>) -> Box<Node
     let Node { token, value } = *node;
     let (token, value) = match value {
         Program(sub_node) => (token, Program(uniquify_inner(sub_node, cxt))),
-        Neg(sub_node) => (token, Program(uniquify_inner(sub_node, cxt))),
+        Neg(sub_node) => (token, Neg(uniquify_inner(sub_node, cxt))),
         Add(lhs, rhs) => (
             token,
             Add(uniquify_inner(lhs, cxt), uniquify_inner(rhs, cxt)),
