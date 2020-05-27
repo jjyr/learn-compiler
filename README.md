@@ -1,1 +1,3 @@
-Some code write during compiler learning
+# Toy compiler
+
+A toy compiler project that supports my learning.
