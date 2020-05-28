@@ -5,7 +5,11 @@ mod pass;
 
 use ast_printer::{print_ast, print_stmt};
 use parser::Parser;
-use std::io;
+use std::env;
+use std::fs::{self, File};
+use std::io::Write;
+use std::os::unix::fs::PermissionsExt;
+use std::process::Command;
 
 fn test(s: &str) {
     let mut parser = Parser::new(s.to_string().chars().collect());
@@ -39,11 +43,56 @@ fn test(s: &str) {
     print_stmt(ast.clone());
     println!();
     println!("print x86:");
-    pass::print_x86(&mut io::stdout(), ast, call_info).unwrap();
+    let mut buf = Vec::new();
+    pass::print_x86(&mut buf, ast, call_info).unwrap();
+    println!("{}", String::from_utf8(buf.clone()).unwrap());
     println!();
+    run_code(buf);
+}
+
+fn run_cmd(cmd: String) {
+    let mut child = Command::new("sh")
+        .arg("-c")
+        .arg(cmd)
+        .spawn()
+        .expect("spawn");
+    child.wait().expect("failed to execute process");
+}
+
+fn build_runtime() {
+    run_cmd("cc -c -o runtime/runtime.o runtime/runtime.c".to_string());
+}
+
+fn run_code(source: Vec<u8>) {
+    let dir = env::temp_dir();
+    let source_file = {
+        let mut source_file = dir.clone();
+        source_file.push("foo.asm");
+        source_file.to_str().unwrap().to_string()
+    };
+    let output_file = {
+        let mut output_file = dir;
+        output_file.push("foo");
+        output_file.to_str().unwrap().to_string()
+    };
+    {
+        let mut f = File::create(&source_file).unwrap();
+        f.write(&source).unwrap();
+    }
+    run_cmd(format!(
+        "cc -o {output} runtime/runtime.o {input}",
+        input = source_file,
+        output = output_file
+    ));
+    let mut perms = fs::metadata(&output_file).unwrap().permissions();
+    perms.set_mode(777);
+    fs::set_permissions(&output_file, perms).unwrap();
+    run_cmd(format!("{}", output_file));
+    fs::remove_file(output_file).unwrap();
 }
 
 fn main() {
+    build_runtime();
     test("(program (+ (read) (let ([x 32]) (+ (let ([x 10]) x) x))))");
     test("(program (+ 10 2))");
 }
