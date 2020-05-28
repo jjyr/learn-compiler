@@ -8,7 +8,6 @@ use parser::Parser;
 use std::env;
 use std::fs::{self, File};
 use std::io::Write;
-use std::os::unix::fs::PermissionsExt;
 use std::process::Command;
 
 fn test(s: &str) {
@@ -64,14 +63,16 @@ fn build_runtime() {
 }
 
 fn run_code(source: Vec<u8>) {
-    let dir = env::temp_dir();
+    let mut dir = env::current_dir().unwrap();
+    dir.push("tmp");
+    fs::create_dir(&dir).unwrap();
     let source_file = {
         let mut source_file = dir.clone();
-        source_file.push("foo.asm");
+        source_file.push("foo.s");
         source_file.to_str().unwrap().to_string()
     };
     let output_file = {
-        let mut output_file = dir;
+        let mut output_file = dir.clone();
         output_file.push("foo");
         output_file.to_str().unwrap().to_string()
     };
@@ -84,11 +85,9 @@ fn run_code(source: Vec<u8>) {
         input = source_file,
         output = output_file
     ));
-    let mut perms = fs::metadata(&output_file).unwrap().permissions();
-    perms.set_mode(777);
-    fs::set_permissions(&output_file, perms).unwrap();
     run_cmd(format!("{}", output_file));
-    fs::remove_file(output_file).unwrap();
+    println!();
+    fs::remove_dir_all(dir).unwrap();
 }
 
 fn main() {
