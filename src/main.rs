@@ -5,6 +5,7 @@ mod pass;
 
 use ast_printer::{print_ast, print_stmt};
 use parser::Parser;
+use std::io;
 
 fn test(s: &str) {
     let mut parser = Parser::new(s.to_string().chars().collect());
@@ -36,6 +37,9 @@ fn test(s: &str) {
     println!("patch inst:");
     let ast = pass::patch_inst(ast);
     print_stmt(ast.clone());
+    println!();
+    println!("print x86:");
+    pass::print_x86(&mut io::stdout(), ast, call_info).unwrap();
     println!();
 }
 
