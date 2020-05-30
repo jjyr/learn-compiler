@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum Token {
     Neg,
@@ -50,9 +52,12 @@ impl Value {
     }
 }
 
+pub type LiveSet = HashSet<String>;
+
 #[derive(Default)]
 pub struct CallInfo {
     pub vars_count: usize,
+    pub live_afters: Vec<LiveSet>,
 }
 
 #[derive(Debug, Clone)]

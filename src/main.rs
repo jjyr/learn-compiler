@@ -1,10 +1,10 @@
 mod ast;
-mod ast_printer;
 mod parser;
 mod pass;
+mod printer;
 
-use ast_printer::{print_ast, print_stmt};
 use parser::Parser;
+use printer::{print_ast, print_live_set, print_stmt};
 use std::env;
 use std::fs::{self, File};
 use std::io::Write;
@@ -32,21 +32,27 @@ fn test(s: &str) {
     let ast = pass::select_inst(ast);
     print_stmt(ast.clone());
     println!();
-    println!("assign home:");
-    let mut call_info = ast::CallInfo::default();
-    let ast = pass::assign_home(ast, &mut call_info);
-    print_stmt(ast.clone());
-    println!();
+    // println!("assign home:");
+    // let mut call_info = ast::CallInfo::default();
+    // let ast = pass::assign_home(ast, &mut call_info);
+    // print_stmt(ast.clone());
+    // println!();
     println!("patch inst:");
     let ast = pass::patch_inst(ast);
     print_stmt(ast.clone());
     println!();
-    println!("print x86:");
-    let mut buf = Vec::new();
-    pass::print_x86(&mut buf, ast, call_info).unwrap();
-    println!("{}", String::from_utf8(buf.clone()).unwrap());
+    println!("uncover live:");
+    let mut call_info = ast::CallInfo::default();
+    let ast = pass::uncover_live(ast, &mut call_info);
+    print_stmt(ast.clone());
+    print_live_set(&call_info.live_afters);
     println!();
-    run_code(buf);
+    // println!("print x86:");
+    // let mut buf = Vec::new();
+    // pass::print_x86(&mut buf, ast, call_info).unwrap();
+    // println!("{}", String::from_utf8(buf.clone()).unwrap());
+    // println!();
+    // run_code(buf);
 }
 
 fn run_cmd(cmd: String) {

@@ -65,3 +65,9 @@ pub fn print_stmt(node_list: Vec<Box<Node>>) {
         println!();
     }
 }
+
+pub fn print_live_set(set_list: &[LiveSet]) {
+    for set in set_list {
+        println!("{:?}", set);
+    }
+}
