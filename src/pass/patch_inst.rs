@@ -2,6 +2,12 @@
 /// x86 specific pass
 use crate::ast::*;
 
+fn is_patchable(t: Token) -> bool {
+    use Token::*;
+
+    t == Var || t == StackLoc
+}
+
 pub fn patch_inst(node_list: Vec<Box<Node>>) -> Vec<Box<Node>> {
     use Value::*;
 
@@ -15,7 +21,7 @@ pub fn patch_inst(node_list: Vec<Box<Node>>) -> Vec<Box<Node>> {
                 source: arg,
             }
             | ADDQ { target, arg }
-                if target.token == Token::StackLoc && arg.token == Token::StackLoc =>
+                if is_patchable(target.token) && is_patchable(arg.token) =>
             {
                 // patch instruction if the two sides are both StackLoc
                 let reg = Box::new(Node::new(Token::REG, RAX));
