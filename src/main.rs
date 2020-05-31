@@ -39,10 +39,6 @@ fn test(s: &str) {
     // let ast = pass::assign_home(ast, &mut info);
     // print_stmt(ast.clone());
     // println!();
-    println!("patch inst:");
-    let ast = pass::patch_inst(ast);
-    print_stmt(ast.clone());
-    println!();
     println!("uncover live:");
     let mut info = ast::Info::default();
     let ast = pass::uncover_live(ast, &mut info);
@@ -52,6 +48,10 @@ fn test(s: &str) {
     println!("build interference:");
     let ast = pass::build_interference(ast, &mut info);
     println!("{:?}", info.interference_graph);
+    println!();
+    println!("patch inst:");
+    let ast = pass::patch_inst(ast);
+    print_stmt(ast.clone());
     println!();
     // println!("print x86:");
     // let mut buf = Vec::new();
