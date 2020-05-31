@@ -1,8 +1,10 @@
 mod ast;
+mod graph;
 mod parser;
 mod pass;
 mod printer;
 
+use graph::Graph;
 use parser::Parser;
 use printer::{print_ast, print_live_set, print_stmt};
 use std::env;
@@ -46,6 +48,10 @@ fn test(s: &str) {
     let ast = pass::uncover_live(ast, &mut info);
     print_stmt(ast.clone());
     print_live_set(&info.live_afters);
+    println!();
+    println!("build interference:");
+    let ast = pass::build_interference(ast, &mut info);
+    println!("{:?}", info.interference_graph);
     println!();
     // println!("print x86:");
     // let mut buf = Vec::new();

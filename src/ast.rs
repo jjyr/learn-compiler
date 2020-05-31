@@ -1,6 +1,8 @@
+use crate::graph::Graph;
 use std::collections::HashSet;
+use std::hash::Hash;
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
 pub enum Token {
     Neg,
     Add,
@@ -20,8 +22,9 @@ pub enum Token {
     StackLoc,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Hash, Eq, PartialEq)]
 pub enum Value {
+    NOP,
     Program(Box<Node>),
     Add(Box<Node>, Box<Node>),
     Neg(Box<Node>),
@@ -43,6 +46,12 @@ pub enum Value {
     StackLoc(isize),
 }
 
+impl Default for Value {
+    fn default() -> Self {
+        Value::NOP
+    }
+}
+
 impl Value {
     pub fn fixnum(&self) -> isize {
         match self {
@@ -58,9 +67,10 @@ pub type LiveSet = HashSet<String>;
 pub struct Info {
     pub vars_count: usize,
     pub live_afters: Vec<LiveSet>,
+    pub interference_graph: Graph<Value>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Node {
     pub token: Token,
     pub value: Value,

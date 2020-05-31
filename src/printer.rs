@@ -56,6 +56,7 @@ pub fn print_ast(node: Box<Node>) {
         StackLoc(offset) => {
             print!("(deref RBP {})", offset);
         }
+        val => panic!("unexpected {:?}", val),
     }
 }
 

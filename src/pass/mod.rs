@@ -1,4 +1,5 @@
 mod assign_home;
+mod build_interference;
 mod flattern;
 mod partial_eval;
 mod patch_inst;
@@ -8,6 +9,7 @@ mod uncover_live;
 mod uniquify;
 
 pub use assign_home::assign_home;
+pub use build_interference::build_interference;
 pub use flattern::flattern;
 pub use partial_eval::partial_eval;
 pub use patch_inst::patch_inst;
