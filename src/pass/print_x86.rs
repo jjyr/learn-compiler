@@ -3,14 +3,14 @@ use std::io::{Result, Write};
 
 const WORD: usize = 8;
 
-pub fn print_x86(f: &mut impl Write, node_list: Vec<Box<Node>>, call_info: CallInfo) -> Result<()> {
+pub fn print_x86(f: &mut impl Write, node_list: Vec<Box<Node>>, info: Info) -> Result<()> {
     use Value::*;
 
     writeln!(f, ".global main")?;
     writeln!(f, "main:")?;
     writeln!(f, "PUSHQ %rbp")?;
     writeln!(f, "MOVQ %rsp, %rbp")?;
-    writeln!(f, "SUBQ ${}, %rsp", call_info.vars_count * WORD)?;
+    writeln!(f, "SUBQ ${}, %rsp", info.vars_count * WORD)?;
 
     for node in node_list {
         let Node { token, value } = *node;
@@ -34,7 +34,7 @@ pub fn print_x86(f: &mut impl Write, node_list: Vec<Box<Node>>, call_info: CallI
     writeln!(f, "MOVQ %rax, %rdi")?;
     writeln!(f, "CALLQ print_int")?;
     // resume the stack and return 0
-    writeln!(f, "ADDQ ${}, %rsp", call_info.vars_count * WORD)?;
+    writeln!(f, "ADDQ ${}, %rsp", info.vars_count * WORD)?;
     writeln!(f, "MOVQ $0, %rax")?;
     writeln!(f, "POPQ %rbp")?;
     writeln!(f, "retq")?;

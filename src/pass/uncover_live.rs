@@ -35,7 +35,7 @@ fn check_read_write(node: Box<Node>, live_set: &mut LiveSet) -> Box<Node> {
     node
 }
 
-pub fn uncover_live(node_list: Vec<Box<Node>>, info: &mut CallInfo) -> Vec<Box<Node>> {
+pub fn uncover_live(node_list: Vec<Box<Node>>, info: &mut Info) -> Vec<Box<Node>> {
     let mut new_node_list: VecDeque<_> = Default::default();
     let mut live_afters: VecDeque<LiveSet> = Default::default();
 

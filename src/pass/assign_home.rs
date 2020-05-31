@@ -45,7 +45,7 @@ fn assign_home_exp(cxt: &mut Context, node: Box<Node>) -> Box<Node> {
     }
 }
 
-pub fn assign_home(node_list: Vec<Box<Node>>, call_info: &mut CallInfo) -> Vec<Box<Node>> {
+pub fn assign_home(node_list: Vec<Box<Node>>, info: &mut Info) -> Vec<Box<Node>> {
     use Value::*;
 
     let mut new_node_list = Vec::with_capacity(node_list.len());
@@ -92,6 +92,6 @@ pub fn assign_home(node_list: Vec<Box<Node>>, call_info: &mut CallInfo) -> Vec<B
         new_node_list.push(node);
     }
     // attach call info on program node
-    call_info.vars_count = cxt.vars_count;
+    info.vars_count = cxt.vars_count;
     new_node_list
 }

@@ -55,7 +55,7 @@ impl Value {
 pub type LiveSet = HashSet<String>;
 
 #[derive(Default)]
-pub struct CallInfo {
+pub struct Info {
     pub vars_count: usize,
     pub live_afters: Vec<LiveSet>,
 }
