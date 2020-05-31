@@ -40,15 +40,15 @@ pub fn print_ast(node: Box<Node>) {
         }
         MOVQ { target, source } => {
             print!("MOVQ ");
-            print_ast(target);
-            print!(" ");
             print_ast(source);
+            print!(" ");
+            print_ast(target);
         }
         ADDQ { target, arg } => {
             print!("ADDQ ");
-            print_ast(target);
-            print!(" ");
             print_ast(arg);
+            print!(" ");
+            print_ast(target);
         }
         CALLQ(fname) => {
             print!("CALLQ {}", fname);
