@@ -49,6 +49,14 @@ pub fn uncover_live(node_list: Vec<Box<Node>>, info: &mut Info) -> Vec<Box<Node>
         live_afters.push_front(live_after.clone());
     }
 
+    // we got a live befores, fix the set to live afters by pending a empty set
+    debug_assert!(
+        live_afters[0].is_empty(),
+        "set before first instruction is empty"
+    );
+    live_afters.pop_front();
+    live_afters.push_back(Default::default());
+
     assert_eq!(
         new_node_list.len(),
         live_afters.len(),
