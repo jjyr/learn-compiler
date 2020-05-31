@@ -35,8 +35,8 @@ pub fn print_ast(node: Box<Node>) {
             print_ast(node);
             print!(")");
         }
-        RAX => {
-            print!("(reg RAX)");
+        reg @ RAX | reg @ RBX => {
+            print!("(reg {:?})", reg);
         }
         MOVQ { target, source } => {
             print!("MOVQ ");

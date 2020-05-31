@@ -49,6 +49,10 @@ fn test(s: &str) {
     let ast = pass::build_interference(ast, &mut info);
     println!("{:?}", info.interference_graph);
     println!();
+    println!("alloc registers:");
+    let ast = pass::allocate_registers(ast, &mut info);
+    print_stmt(ast.clone());
+    println!();
     println!("patch inst:");
     let ast = pass::patch_inst(ast);
     print_stmt(ast.clone());

@@ -37,13 +37,15 @@ pub enum Value {
         target: Box<Node>,
         source: Box<Node>,
     },
-    RAX,
     CALLQ(&'static str),
     ADDQ {
         target: Box<Node>,
         arg: Box<Node>,
     },
     StackLoc(isize),
+    // registers
+    RAX,
+    RBX,
 }
 
 impl Default for Value {
@@ -53,6 +55,12 @@ impl Default for Value {
 }
 
 impl Value {
+    pub fn var(&self) -> &String {
+        match &self {
+            Self::Var(name) => name,
+            _ => panic!("expect Var"),
+        }
+    }
     pub fn fixnum(&self) -> isize {
         match self {
             Self::Fixnum(num) => *num,

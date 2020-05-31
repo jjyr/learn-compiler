@@ -16,6 +16,10 @@ pub fn patch_inst(node_list: Vec<Box<Node>>) -> Vec<Box<Node>> {
     for node in node_list {
         let Node { token, value } = *node;
         match value {
+            MOVQ { target, source } if token == Token::MOVQ && target == source => {
+                // skip unnecessary move
+                continue;
+            }
             MOVQ {
                 target,
                 source: arg,

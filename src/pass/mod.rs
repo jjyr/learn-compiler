@@ -1,4 +1,4 @@
-mod assign_home;
+mod allocate_registers;
 mod build_interference;
 mod flattern;
 mod partial_eval;
@@ -8,7 +8,7 @@ mod select_inst;
 mod uncover_live;
 mod uniquify;
 
-pub use assign_home::assign_home;
+pub use allocate_registers::allocate_registers;
 pub use build_interference::build_interference;
 pub use flattern::flattern;
 pub use partial_eval::partial_eval;
