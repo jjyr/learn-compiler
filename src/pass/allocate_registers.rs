@@ -78,6 +78,7 @@ pub fn allocate_registers(node_list: Vec<Box<Node>>, info: &mut Info) -> Vec<Box
     use Value::*;
 
     let color_map = color_graph(&mut info.interference_graph);
+    let stack_vars_count = color_map.values().max().cloned().unwrap_or(0);
 
     // mapping color to registers
     let var_to_reg: HashMap<String, Value> = color_map
@@ -110,5 +111,6 @@ pub fn allocate_registers(node_list: Vec<Box<Node>>, info: &mut Info) -> Vec<Box
         };
         new_node_list.push(node);
     }
+    info.stack_vars_count = stack_vars_count;
     new_node_list
 }

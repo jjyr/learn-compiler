@@ -4,7 +4,6 @@ mod parser;
 mod pass;
 mod printer;
 
-use graph::Graph;
 use parser::Parser;
 use printer::{print_ast, print_live_set, print_stmt};
 use std::env;
@@ -57,12 +56,12 @@ fn test(s: &str) {
     let ast = pass::patch_inst(ast);
     print_stmt(ast.clone());
     println!();
-    // println!("print x86:");
-    // let mut buf = Vec::new();
-    // pass::print_x86(&mut buf, ast, info).unwrap();
-    // println!("{}", String::from_utf8(buf.clone()).unwrap());
-    // println!();
-    // run_code(buf);
+    println!("print x86:");
+    let mut buf = Vec::new();
+    pass::print_x86(&mut buf, ast, info).unwrap();
+    println!("{}", String::from_utf8(buf.clone()).unwrap());
+    println!();
+    run_code(buf);
 }
 
 fn run_cmd(cmd: String) {

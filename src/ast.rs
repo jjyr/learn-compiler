@@ -73,7 +73,7 @@ pub type LiveSet = HashSet<String>;
 
 #[derive(Default)]
 pub struct Info {
-    pub vars_count: usize,
+    pub stack_vars_count: usize,
     pub live_afters: Vec<LiveSet>,
     pub interference_graph: Graph<Value>,
 }
