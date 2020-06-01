@@ -2,6 +2,7 @@ use crate::graph::Graph;
 use std::collections::HashSet;
 use std::hash::Hash;
 
+/// Token
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
 pub enum Token {
     Neg,
@@ -11,19 +12,11 @@ pub enum Token {
     Program,
     Let,
     Var,
-    /* Statements */
-    Assign,
-    REG,
-    /* X86 */
-    ADDQ,
-    MOVQ,
-    CALLQ,
-    /* stack location */
-    StackLoc,
 }
 
+/// AST node
 #[derive(Debug, Clone, Hash, Eq, PartialEq)]
-pub enum Value {
+pub enum Node {
     NOP,
     Program(Box<Node>),
     Add(Box<Node>, Box<Node>),
@@ -48,23 +41,23 @@ pub enum Value {
     RBX,
 }
 
-impl Default for Value {
+impl Default for Node {
     fn default() -> Self {
-        Value::NOP
+        Node::NOP
     }
 }
 
-impl Value {
-    pub fn var(&self) -> &String {
+impl Node {
+    pub fn var(&self) -> Option<&String> {
         match &self {
-            Self::Var(name) => name,
-            _ => panic!("expect Var"),
+            Self::Var(name) => Some(name),
+            _ => None,
         }
     }
-    pub fn fixnum(&self) -> isize {
+    pub fn fixnum(&self) -> Option<isize> {
         match self {
-            Self::Fixnum(num) => *num,
-            _ => panic!("expect Fixnum"),
+            Self::Fixnum(num) => Some(*num),
+            _ => None,
         }
     }
 }
@@ -75,17 +68,5 @@ pub type LiveSet = HashSet<String>;
 pub struct Info {
     pub stack_vars_count: usize,
     pub live_afters: Vec<LiveSet>,
-    pub interference_graph: Graph<Value>,
-}
-
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct Node {
-    pub token: Token,
-    pub value: Value,
-}
-
-impl Node {
-    pub fn new(token: Token, value: Value) -> Self {
-        Node { token, value }
-    }
+    pub interference_graph: Graph<Node>,
 }

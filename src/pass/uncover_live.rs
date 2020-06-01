@@ -2,13 +2,13 @@ use crate::ast::*;
 use std::collections::VecDeque;
 
 fn add_var(s: &mut LiveSet, node: &Node) {
-    if let Value::Var(var_name) = &node.value {
+    if let Node::Var(var_name) = &node {
         s.insert(var_name.to_owned());
     }
 }
 
 fn remove_var(s: &mut LiveSet, node: &Node) {
-    if let Value::Var(var_name) = &node.value {
+    if let Node::Var(var_name) = &node {
         s.remove(var_name);
     }
 }
@@ -16,9 +16,9 @@ fn remove_var(s: &mut LiveSet, node: &Node) {
 /// Check read set and write set of a node
 /// return (node, read set, write set)
 fn check_read_write(node: Box<Node>, live_set: &mut LiveSet) -> Box<Node> {
-    use Value::*;
+    use Node::*;
 
-    match &node.value {
+    match node.as_ref() {
         MOVQ { target, source } => {
             remove_var(live_set, target);
             add_var(live_set, source);

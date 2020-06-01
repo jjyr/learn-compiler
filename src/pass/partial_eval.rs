@@ -1,30 +1,26 @@
-use crate::ast::{Node, Token, Value};
+use crate::ast::Node;
 
 pub fn partial_eval(node: Box<Node>) -> Box<Node> {
-    let Node { token, value } = *node;
-    let (token, value) = match value {
-        Value::Program(sub_node) => (token, Value::Program(partial_eval(sub_node))),
-        Value::Neg(sub_node) => {
+    let node = match *node {
+        Node::Program(sub_node) => Node::Program(partial_eval(sub_node)),
+        Node::Neg(sub_node) => {
             let sub_node = partial_eval(sub_node);
-            if let Value::Fixnum(num) = sub_node.value {
-                (Token::Fixnum, Value::Fixnum(-num))
+            if let Node::Fixnum(num) = *sub_node {
+                Node::Fixnum(-num)
             } else {
-                (Token::Neg, Value::Neg(sub_node))
+                Node::Neg(sub_node)
             }
         }
-        Value::Add(lhs, rhs) => {
+        Node::Add(lhs, rhs) => {
             let lhs = partial_eval(lhs);
             let rhs = partial_eval(rhs);
-            if lhs.token == Token::Fixnum && rhs.token == Token::Fixnum {
-                (
-                    Token::Fixnum,
-                    Value::Fixnum(lhs.value.fixnum() + rhs.value.fixnum()),
-                )
+            if lhs.fixnum().is_some() && rhs.fixnum().is_some() {
+                Node::Fixnum(lhs.fixnum().unwrap() + rhs.fixnum().unwrap())
             } else {
-                (Token::Add, Value::Add(lhs, rhs))
+                Node::Add(lhs, rhs)
             }
         }
-        _ => (token, value),
+        _ => *node,
     };
-    Box::new(Node::new(token, value))
+    Box::new(node)
 }

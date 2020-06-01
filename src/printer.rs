@@ -1,8 +1,9 @@
 use crate::ast::*;
 
 pub fn print_ast(node: Box<Node>) {
-    use Value::*;
-    match node.value {
+    use Node::*;
+
+    match *node {
         Fixnum(num) => print!("{}", num),
         Program(node) => {
             print!("(program ");

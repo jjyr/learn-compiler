@@ -1,4 +1,4 @@
-use crate::ast::{Node, Token, Value};
+use crate::ast::{Node, Token};
 use std::iter::FromIterator;
 
 pub struct Parser {
@@ -110,12 +110,12 @@ impl Parser {
 
         let in_paren = self.match_str("(").is_ok();
         let token = self.read_token().expect("token");
-        let value = match token {
-            Program => Value::Program(self.read_exp()),
-            Add => Value::Add(self.read_exp(), self.read_exp()),
-            Neg => Value::Neg(self.read_exp()),
-            Fixnum => Value::Fixnum(self.read_fixnum().expect("fixnum")),
-            Read => Value::Read,
+        let node = match token {
+            Program => Node::Program(self.read_exp()),
+            Add => Node::Add(self.read_exp(), self.read_exp()),
+            Neg => Node::Neg(self.read_exp()),
+            Fixnum => Node::Fixnum(self.read_fixnum().expect("fixnum")),
+            Read => Node::Read,
             Let => {
                 self.expect_str("(");
                 self.expect_str("[");
@@ -124,9 +124,9 @@ impl Parser {
                 let bound_value = self.read_fixnum().expect("fixnum");
                 self.expect_str("]");
                 self.expect_str(")");
-                Value::Let(var, bound_value, self.read_exp())
+                Node::Let(var, bound_value, self.read_exp())
             }
-            Var => Value::Var(self.read_var().expect("var")),
+            Var => Node::Var(self.read_var().expect("var")),
             _ => {
                 panic!("expected token, got {:?}", token);
             }
@@ -134,8 +134,7 @@ impl Parser {
         if in_paren {
             self.expect_str(")");
         }
-        let n = Node::new(token, value);
-        return Box::new(n);
+        return Box::new(node);
     }
 
     pub fn parse_program(&mut self) -> Box<Node> {

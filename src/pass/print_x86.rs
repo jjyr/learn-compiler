@@ -4,7 +4,7 @@ use std::io::{Result, Write};
 const WORD: usize = 8;
 
 pub fn print_x86(f: &mut impl Write, node_list: Vec<Box<Node>>, info: Info) -> Result<()> {
-    use Value::*;
+    use Node::*;
 
     writeln!(f, ".global main")?;
     writeln!(f, "main:")?;
@@ -19,8 +19,7 @@ pub fn print_x86(f: &mut impl Write, node_list: Vec<Box<Node>>, info: Info) -> R
     }
 
     for node in node_list {
-        let Node { token, value } = *node;
-        match value {
+        match *node {
             MOVQ { target, source } => {
                 writeln!(f, "MOVQ {}, {}", parse_val(source), parse_val(target))?;
             }
@@ -31,7 +30,7 @@ pub fn print_x86(f: &mut impl Write, node_list: Vec<Box<Node>>, info: Info) -> R
                 writeln!(f, "CALLQ {}", symbol)?;
             }
             _ => {
-                panic!("unexpected token {:?}", token);
+                panic!("unexpected token {:?}", node);
             }
         }
     }
@@ -48,11 +47,9 @@ pub fn print_x86(f: &mut impl Write, node_list: Vec<Box<Node>>, info: Info) -> R
 }
 
 fn parse_val(node: Box<Node>) -> String {
-    use Value::*;
+    use Node::*;
 
-    let Node { token: _, value } = *node;
-
-    match value {
+    match *node {
         Fixnum(n) => format!("${}", n),
         StackLoc(offset) => format!("{}(%rbp)", offset),
         RAX => "%rax".to_string(),
