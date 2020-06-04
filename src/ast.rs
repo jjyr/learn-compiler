@@ -69,4 +69,5 @@ pub struct Info {
     pub stack_vars_count: usize,
     pub live_afters: Vec<LiveSet>,
     pub interference_graph: Graph<Node>,
+    pub move_graph: Graph<Node>,
 }

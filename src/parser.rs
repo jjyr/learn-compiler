@@ -127,9 +127,6 @@ impl Parser {
                 Node::Let(var, bound_value, self.read_exp())
             }
             Var => Node::Var(self.read_var().expect("var")),
-            _ => {
-                panic!("expected token, got {:?}", token);
-            }
         };
         if in_paren {
             self.expect_str(")");

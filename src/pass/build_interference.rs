@@ -15,6 +15,10 @@ pub fn build_interference(node_list: Vec<Box<Node>>, info: &mut Info) -> Vec<Box
                 }
             }
             MOVQ { target, source } => {
+                // record move relation
+                if source != target {
+                    info.move_graph.insert(*source.clone(), *target.clone());
+                }
                 for var in live_set {
                     let var = Var(var.to_owned());
                     if &var != target.as_ref() && &var != source.as_ref() {

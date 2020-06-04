@@ -10,33 +10,54 @@ struct Status {
     conflicts: HashSet<usize>,
 }
 
-fn chose_a_color(s: &Status) -> usize {
+/// choose a color
+fn choose_a_color(
+    node: &Node,
+    status: &HashMap<Node, Status>,
+    move_relation: &Graph<Node>,
+) -> usize {
+    let node_status = status.get(node).expect("status");
+
+    // pick a color based on move relation
+    for related in move_relation.get_adjacents_set(node).expect("adjacents") {
+        if let Some(s) = status.get(&related) {
+            // use color of related node if it is possible
+            let color = match s.color {
+                Some(c) => c,
+                None => continue,
+            };
+
+            if !node_status.conflicts.contains(&color) {
+                return color;
+            }
+        }
+    }
+
+    // pick a color
     for i in 0.. {
-        if !s.conflicts.contains(&i) {
+        if !node_status.conflicts.contains(&i) {
             return i;
         }
     }
-    panic!("can't chose color")
+
+    panic!("can't choose a color")
 }
 
 fn find_most_saturated_vertex(
-    status: &HashMap<String, Status>,
+    status: &HashMap<Node, Status>,
     interference: &Graph<Node>,
 ) -> Option<Node> {
     let v = interference
         .iter_vertex()
-        .filter(|v| {
-            status
-                .get(v.var().expect("var"))
-                .expect("status")
-                .color
-                .is_none()
-        })
+        .filter(|v| status.get(v).expect("status").color.is_none())
         .max_by_key(|v| interference.get_adjacents_set(v).expect("adjacents").len());
     v.map(Clone::clone)
 }
 
-fn color_graph(interference: &mut Graph<Node>) -> HashMap<String, usize> {
+fn color_graph(
+    interference: &mut Graph<Node>,
+    move_relation: &mut Graph<Node>,
+) -> HashMap<String, usize> {
     // remove RAX, since we use RAX to patch instructions,
     // so we do not allocate RAX for variables
     // which means RAX wound not be interferenced with other variables / registers
@@ -45,28 +66,33 @@ fn color_graph(interference: &mut Graph<Node>) -> HashMap<String, usize> {
     // 1. find the most saturated vertex
     // 2. allocate a color
     // 3. mark adjacent vertexes
-    let mut status: HashMap<String, Status> = interference
+    let mut status: HashMap<Node, Status> = interference
         .iter_vertex()
         .cloned()
-        .map(|vertex| (vertex.var().expect("var").to_owned(), Status::default()))
+        .map(|vertex| (vertex, Status::default()))
         .collect();
     while let Some(vertex) = find_most_saturated_vertex(&status, interference) {
-        let mut s: &mut Status = status.get_mut(vertex.var().expect("var")).expect("vertex");
-        let c = chose_a_color(s);
+        let c = choose_a_color(&vertex, &status, move_relation);
+
+        // update color
+        let mut s: &mut Status = status.get_mut(&vertex).expect("vertex");
         s.color = Some(c);
+
+        // update adjacents' conflicts
         for var in interference.get_adjacents_set(&vertex).expect("adjacents") {
-            status
-                .get_mut(var.var().expect("var"))
-                .unwrap()
-                .conflicts
-                .insert(c);
+            status.get_mut(&var).unwrap().conflicts.insert(c);
         }
     }
 
     // mapping color to registers
     status
         .into_iter()
-        .map(|(var, status)| (var, status.color.expect("allocated")))
+        .map(|(node, status)| {
+            (
+                node.var().expect("var").to_owned(),
+                status.color.expect("allocated"),
+            )
+        })
         .collect()
 }
 
@@ -82,7 +108,7 @@ fn map_var_node(var_to_reg: &HashMap<String, Node>, node: Box<Node>) -> Box<Node
 pub fn allocate_registers(node_list: Vec<Box<Node>>, info: &mut Info) -> Vec<Box<Node>> {
     use Node::*;
 
-    let color_map = color_graph(&mut info.interference_graph);
+    let color_map = color_graph(&mut info.interference_graph, &mut info.move_graph);
     let stack_vars_count = color_map.values().max().cloned().unwrap_or(0);
 
     // mapping color to registers
