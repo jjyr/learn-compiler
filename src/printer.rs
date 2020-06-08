@@ -26,9 +26,55 @@ pub fn print_ast(node: Box<Node>) {
             print!("(read)");
         }
         Var(var) => print!("{}", var),
-        Let(var, num, node) => {
-            print!("(let ([{} {}]) ", var, num);
-            print_ast(node);
+        Let { name, value, exp } => {
+            print!("(let ([{} ", name);
+            print_ast(value);
+            print!("]) ");
+            print_ast(exp);
+            print!(")");
+        }
+        Not(exp) => {
+            print!("(not ");
+            print_ast(exp);
+            print!(")");
+        }
+        Eq(lhs, rhs) => {
+            print!("(== ");
+            print_ast(lhs);
+            print!(" ");
+            print_ast(rhs);
+            print!(")");
+        }
+        b @ True | b @ False => {
+            print!("{:?}", b);
+        }
+        op @ Lt(_, _) | op @ Lte(_, _) | op @ Gt(_, _) | op @ Gte(_, _) => {
+            print!("(");
+            let (lhs, rhs) = match op {
+                Lt(lhs, rhs) => {
+                    print!("<");
+                    (lhs, rhs)
+                }
+                Lte(lhs, rhs) => {
+                    print!("<=");
+                    (lhs, rhs)
+                }
+                Gt(lhs, rhs) => {
+                    print!(">");
+                    (lhs, rhs)
+                }
+                Gte(lhs, rhs) => {
+                    print!(">=");
+                    (lhs, rhs)
+                }
+                op => {
+                    panic!("unexpected {:?}", op);
+                }
+            };
+            print!(" ");
+            print_ast(lhs);
+            print!(" ");
+            print_ast(rhs);
             print!(")");
         }
         Assign(var, node) => {

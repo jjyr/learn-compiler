@@ -11,6 +11,22 @@ use std::fs::{self, File};
 use std::io::Write;
 use std::process::Command;
 
+fn test_type_check(s: &str) -> Result<ast::Type, String> {
+    let mut parser = Parser::new(s.to_string().chars().collect());
+    let ast = parser.parse_program();
+    println!("inputs:");
+    print_ast(ast.clone());
+    println!();
+    let mut info = ast::Info::default();
+    let ret_t = pass::type_check(ast, &mut info);
+    match ret_t.as_ref() {
+        Ok(ret_t) => println!("type check: OK, ret: {:?}", ret_t),
+        Err(msg) => println!("type check: Error, msg: {}", msg),
+    }
+    println!();
+    ret_t
+}
+
 fn test(s: &str) {
     let mut parser = Parser::new(s.to_string().chars().collect());
     let ast = parser.parse_program();
@@ -106,6 +122,12 @@ fn run_code(source: Vec<u8>) {
 }
 
 fn main() {
+    test_type_check("(program (+ (read) (let ([x 32]) (+ (let ([x 10]) x) x))))").unwrap();
+    test_type_check("(program (+ 10 2))").unwrap();
+    test_type_check("(program (== (+ 10 2) false))").unwrap_err();
+    test_type_check("(program (== (not true) false))").unwrap();
+    test_type_check("(program (== (> 10 2) false))").unwrap();
+    test_type_check("(program (>= (+ 10 2) 32))").unwrap();
     build_runtime();
     test("(program (+ (read) (let ([x 32]) (+ (let ([x 10]) x) x))))");
     test("(program (+ 10 2))");

@@ -14,3 +14,4 @@ build
 /target
 **/*.rs.bk
 runtime/*.o
+*.vi

@@ -63,11 +63,10 @@ impl Context {
             v @ Fixnum(..) | v @ Var(..) => {
                 return Box::new(v);
             }
-            Let(var_name, num, sub_node) => {
-                let value_node = Box::new(Fixnum(num));
-                let assign_node = Box::new(Assign(var_name, value_node));
+            Let { name, value, exp } => {
+                let assign_node = Box::new(Assign(name, value));
                 self.assign_list.push(assign_node);
-                return self.flattern_inner(sub_node);
+                return self.flattern_inner(exp);
             }
             val => {
                 panic!("unexpected {:?}", val);

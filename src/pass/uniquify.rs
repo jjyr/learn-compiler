@@ -18,15 +18,19 @@ fn uniquify_inner(node: Box<Node>, cxt: &mut HashMap<String, usize>) -> Box<Node
             let new_var_name = rewrite_var(var_name, count);
             Var(new_var_name)
         }
-        Let(var_name, num, sub_node) => {
-            let count = cxt.get(&var_name).map(|cnt| *cnt).unwrap_or_default() + 1;
+        Let { name, value, exp } => {
+            let count = cxt.get(&name).map(|cnt| *cnt).unwrap_or_default() + 1;
             // increase cnt in sub node
-            cxt.insert(var_name.clone(), count);
-            let sub_node = uniquify_inner(sub_node, cxt);
+            cxt.insert(name.clone(), count);
+            let sub_node = uniquify_inner(exp, cxt);
             // set cnt back
-            cxt.insert(var_name.clone(), count - 1);
-            let new_var_name = rewrite_var(var_name, count);
-            Let(new_var_name, num, sub_node)
+            cxt.insert(name.clone(), count - 1);
+            let new_var_name = rewrite_var(name, count);
+            Let {
+                name: new_var_name,
+                value,
+                exp: sub_node,
+            }
         }
         _ => *node,
     };

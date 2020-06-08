@@ -1,5 +1,5 @@
 use crate::graph::Graph;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 
 /// Token
@@ -12,6 +12,14 @@ pub enum Token {
     Program,
     Let,
     Var,
+    True,
+    False,
+    Not,
+    Eq,
+    Lt,
+    Lte,
+    Gt,
+    Gte,
 }
 
 /// AST node
@@ -22,7 +30,11 @@ pub enum Node {
     Add(Box<Node>, Box<Node>),
     Neg(Box<Node>),
     Var(String),
-    Let(String, isize, Box<Node>),
+    Let {
+        name: String,
+        value: Box<Node>,
+        exp: Box<Node>,
+    },
     Fixnum(isize),
     Read,
     Assign(String, Box<Node>),
@@ -39,6 +51,15 @@ pub enum Node {
     // registers
     RAX,
     RBX,
+    // bool logic
+    True,
+    False,
+    Not(Box<Node>),
+    Eq(Box<Node>, Box<Node>),
+    Lt(Box<Node>, Box<Node>),
+    Lte(Box<Node>, Box<Node>),
+    Gt(Box<Node>, Box<Node>),
+    Gte(Box<Node>, Box<Node>),
 }
 
 impl Default for Node {
@@ -62,11 +83,18 @@ impl Node {
     }
 }
 
+#[derive(Clone, Copy, Eq, PartialEq, Debug)]
+pub enum Type {
+    Fixnum,
+    Boolean,
+}
+
 pub type LiveSet = HashSet<String>;
 
 #[derive(Default)]
 pub struct Info {
     pub stack_vars_count: usize,
+    pub vars_types: HashMap<String, Type>,
     pub live_afters: Vec<LiveSet>,
     pub interference_graph: Graph<Node>,
     pub move_graph: Graph<Node>,

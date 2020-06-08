@@ -1,11 +1,12 @@
 use std::collections::{HashMap, HashSet};
+use std::fmt::Debug;
 use std::hash::Hash;
 
 /// A naive graph used for register allocation
 #[derive(Default, Debug)]
-pub struct Graph<T>(HashMap<T, HashSet<T>>);
+pub struct Graph<T: Eq + Hash + Default + Debug>(HashMap<T, HashSet<T>>);
 
-impl<T: Eq + Hash + Default + Clone> Graph<T> {
+impl<T: Eq + Hash + Default + Clone + Debug> Graph<T> {
     /// insert a pair of adjacent vertex
     pub fn insert(&mut self, a: T, b: T) {
         self.0

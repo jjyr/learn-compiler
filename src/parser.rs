@@ -98,6 +98,20 @@ impl Parser {
                 self.cur += 1;
                 Neg
             }
+            'n' if self.match_str("not").is_ok() => Not,
+            't' if self.match_str("true").is_ok() => True,
+            'f' if self.match_str("false").is_ok() => False,
+            '=' if self.match_str("==").is_ok() => Eq,
+            '<' if self.match_str("<=").is_ok() => Lte,
+            '<' => {
+                self.cur += 1;
+                Lt
+            }
+            '>' if self.match_str(">=").is_ok() => Gte,
+            '>' => {
+                self.cur += 1;
+                Gt
+            }
             '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => Fixnum,
             'r' if self.match_str("read").is_ok() => Read,
             _ => Var,
@@ -119,14 +133,32 @@ impl Parser {
             Let => {
                 self.expect_str("(");
                 self.expect_str("[");
-                let var = self.read_var().expect("var");
+                let name = self.read_var().expect("var");
                 self.next_char();
-                let bound_value = self.read_fixnum().expect("fixnum");
+                let value = self.read_exp();
+                match value.as_ref() {
+                    Node::Fixnum(_) | Node::True | Node::False => {}
+                    v => {
+                        panic!("expect value, got {:?}", v);
+                    }
+                }
                 self.expect_str("]");
                 self.expect_str(")");
-                Node::Let(var, bound_value, self.read_exp())
+                Node::Let {
+                    name,
+                    value,
+                    exp: self.read_exp(),
+                }
             }
             Var => Node::Var(self.read_var().expect("var")),
+            True => Node::True,
+            False => Node::False,
+            Not => Node::Not(self.read_exp()),
+            Eq => Node::Eq(self.read_exp(), self.read_exp()),
+            Lt => Node::Lt(self.read_exp(), self.read_exp()),
+            Lte => Node::Lte(self.read_exp(), self.read_exp()),
+            Gt => Node::Gt(self.read_exp(), self.read_exp()),
+            Gte => Node::Gte(self.read_exp(), self.read_exp()),
         };
         if in_paren {
             self.expect_str(")");
