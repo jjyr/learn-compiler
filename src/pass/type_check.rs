@@ -46,13 +46,15 @@ fn type_check_node(node: Box<Node>, var_types: &mut HashMap<String, Type>) -> Re
         }
         If {
             cond,
-            if_exp,
-            else_exp,
+            mut if_exps,
+            mut else_exps,
         } => {
+            assert_eq!(if_exps.len(), 1);
+            assert_eq!(else_exps.len(), 1);
             let cond_t = type_check_node(cond, var_types)?;
             expect_type_eq(cond_t, Type::Boolean)?;
-            let if_t = type_check_node(if_exp, var_types)?;
-            let else_t = type_check_node(else_exp, var_types)?;
+            let if_t = type_check_node(if_exps.remove(0), var_types)?;
+            let else_t = type_check_node(else_exps.remove(0), var_types)?;
             expect_type_eq(if_t, else_t)?;
             if_t
         }

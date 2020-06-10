@@ -98,35 +98,37 @@ impl Context {
             }
             If {
                 cond,
-                if_exp,
-                else_exp,
+                mut if_exps,
+                mut else_exps,
             } => {
+                assert_eq!(if_exps.len(), 1);
+                assert_eq!(else_exps.len(), 1);
                 let cond_var = self.flattern_inner(cond, node_list);
-                let mut if_exps = Vec::new();
-                let mut else_exps = Vec::new();
-                let if_var = self.flattern_inner(if_exp, &mut if_exps);
-                let else_var = self.flattern_inner(else_exp, &mut else_exps);
+                let mut new_if_exps = Vec::new();
+                let mut new_else_exps = Vec::new();
+                let if_var = self.flattern_inner(if_exps.remove(0), &mut new_if_exps);
+                let else_var = self.flattern_inner(else_exps.remove(0), &mut new_else_exps);
                 let if_value_node = match (if_var.var(), else_var.var()) {
                     (Some(if_v), Some(else_v)) if if_v == else_v => if_var,
                     (Some(if_v), _) => {
-                        else_exps.push(Box::new(Assign(if_v.to_owned(), else_var)));
+                        new_else_exps.push(Box::new(Assign(if_v.to_owned(), else_var)));
                         if_var
                     }
                     (_, Some(else_v)) => {
-                        if_exps.push(Box::new(Assign(else_v.to_owned(), if_var)));
+                        new_if_exps.push(Box::new(Assign(else_v.to_owned(), if_var)));
                         else_var
                     }
                     _ => {
                         let v = self.var_allocator.alloc();
-                        else_exps.push(Box::new(Assign(v.to_owned(), else_var)));
-                        if_exps.push(Box::new(Assign(v.to_owned(), if_var)));
+                        new_else_exps.push(Box::new(Assign(v.to_owned(), else_var)));
+                        new_if_exps.push(Box::new(Assign(v.to_owned(), if_var)));
                         Box::new(Var(v.to_owned()))
                     }
                 };
-                let node = Box::new(Iff {
+                let node = Box::new(If {
                     cond: cond_var,
-                    if_exps,
-                    else_exps,
+                    if_exps: new_if_exps,
+                    else_exps: new_else_exps,
                 });
                 node_list.push(node);
                 if_value_node

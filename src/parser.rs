@@ -167,8 +167,8 @@ impl Parser {
             Gte => Node::Gte(self.read_exp(), self.read_exp()),
             If => Node::If {
                 cond: self.read_exp(),
-                if_exp: self.read_exp(),
-                else_exp: self.read_exp(),
+                if_exps: vec![self.read_exp()],
+                else_exps: vec![self.read_exp()],
             },
         };
         if in_paren {

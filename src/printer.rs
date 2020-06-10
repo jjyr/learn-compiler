@@ -105,19 +105,6 @@ pub fn print_ast(node: Box<Node>) {
         }
         If {
             cond,
-            if_exp,
-            else_exp,
-        } => {
-            print!("(if ");
-            print_ast(cond);
-            print!(" ");
-            print_ast(if_exp);
-            print!(" ");
-            print_ast(else_exp);
-            print!(")");
-        }
-        Iff {
-            cond,
             if_exps,
             else_exps,
         } => {
