@@ -20,6 +20,7 @@ pub enum Token {
     Lte,
     Gt,
     Gte,
+    If,
 }
 
 /// AST node
@@ -60,6 +61,16 @@ pub enum Node {
     Lte(Box<Node>, Box<Node>),
     Gt(Box<Node>, Box<Node>),
     Gte(Box<Node>, Box<Node>),
+    If {
+        cond: Box<Node>,
+        if_exp: Box<Node>,
+        else_exp: Box<Node>,
+    },
+    Iff {
+        cond: Box<Node>,
+        if_exps: Vec<Box<Node>>,
+        else_exps: Vec<Box<Node>>,
+    },
 }
 
 impl Default for Node {

@@ -103,6 +103,38 @@ pub fn print_ast(node: Box<Node>) {
         StackLoc(offset) => {
             print!("(deref RBP {})", offset);
         }
+        If {
+            cond,
+            if_exp,
+            else_exp,
+        } => {
+            print!("(if ");
+            print_ast(cond);
+            print!(" ");
+            print_ast(if_exp);
+            print!(" ");
+            print_ast(else_exp);
+            print!(")");
+        }
+        Iff {
+            cond,
+            if_exps,
+            else_exps,
+        } => {
+            print!("(if\n (");
+            print_ast(cond);
+            print!(")\n(\n");
+            for node in if_exps {
+                print_ast(node);
+                println!();
+            }
+            print!(")\n(\n");
+            for node in else_exps {
+                print_ast(node);
+                println!();
+            }
+            print!(")\n)");
+        }
         val => panic!("unexpected {:?}", val),
     }
 }

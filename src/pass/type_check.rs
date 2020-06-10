@@ -44,6 +44,18 @@ fn type_check_node(node: Box<Node>, var_types: &mut HashMap<String, Type>) -> Re
             expect_type_eq(lhs_t, rhs_t)?;
             Type::Boolean
         }
+        If {
+            cond,
+            if_exp,
+            else_exp,
+        } => {
+            let cond_t = type_check_node(cond, var_types)?;
+            expect_type_eq(cond_t, Type::Boolean)?;
+            let if_t = type_check_node(if_exp, var_types)?;
+            let else_t = type_check_node(else_exp, var_types)?;
+            expect_type_eq(if_t, else_t)?;
+            if_t
+        }
         e => panic!("unexpected {:?}", e),
     };
     Ok(t)

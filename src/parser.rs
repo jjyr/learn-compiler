@@ -63,7 +63,7 @@ impl Parser {
         Some(num)
     }
 
-    fn read_var(&mut self) -> Option<String> {
+    fn read_var(&mut self) -> String {
         let prev_cur = self.cur;
         let mut var = String::new();
         loop {
@@ -75,9 +75,14 @@ impl Parser {
             var.push(chr);
         }
         if prev_cur == self.cur {
-            return None;
+            panic!(
+                "parse var error: {}",
+                String::from_iter(
+                    self.source[self.cur..std::cmp::min(self.source.len(), self.cur + 20)].iter()
+                )
+            );
         }
-        Some(var)
+        var
     }
 
     fn read_token(&mut self) -> Option<Token> {
@@ -114,6 +119,7 @@ impl Parser {
             }
             '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => Fixnum,
             'r' if self.match_str("read").is_ok() => Read,
+            'i' if self.match_str("if").is_ok() => If,
             _ => Var,
         };
         Some(token)
@@ -133,7 +139,7 @@ impl Parser {
             Let => {
                 self.expect_str("(");
                 self.expect_str("[");
-                let name = self.read_var().expect("var");
+                let name = self.read_var();
                 self.next_char();
                 let value = self.read_exp();
                 match value.as_ref() {
@@ -150,7 +156,7 @@ impl Parser {
                     exp: self.read_exp(),
                 }
             }
-            Var => Node::Var(self.read_var().expect("var")),
+            Var => Node::Var(self.read_var()),
             True => Node::True,
             False => Node::False,
             Not => Node::Not(self.read_exp()),
@@ -159,6 +165,11 @@ impl Parser {
             Lte => Node::Lte(self.read_exp(), self.read_exp()),
             Gt => Node::Gt(self.read_exp(), self.read_exp()),
             Gte => Node::Gte(self.read_exp(), self.read_exp()),
+            If => Node::If {
+                cond: self.read_exp(),
+                if_exp: self.read_exp(),
+                else_exp: self.read_exp(),
+            },
         };
         if in_paren {
             self.expect_str(")");

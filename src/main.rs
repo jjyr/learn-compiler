@@ -27,6 +27,26 @@ fn test_type_check(s: &str) -> Result<ast::Type, String> {
     ret_t
 }
 
+fn test_r2(s: &str) {
+    let mut parser = Parser::new(s.to_string().chars().collect());
+    let ast = parser.parse_program();
+    println!("inputs:");
+    print_ast(ast.clone());
+    println!();
+    println!("partial eval:");
+    let ast = pass::partial_eval(ast);
+    print_ast(ast.clone());
+    println!();
+    println!("uniquify:");
+    let ast = pass::uniquify(ast);
+    print_ast(ast.clone());
+    println!();
+    println!("flattern:");
+    let ast = pass::flattern(ast);
+    print_stmt(ast.clone());
+    println!();
+}
+
 fn test(s: &str) {
     let mut parser = Parser::new(s.to_string().chars().collect());
     let ast = parser.parse_program();
@@ -127,7 +147,12 @@ fn main() {
     test_type_check("(program (== (+ 10 2) false))").unwrap_err();
     test_type_check("(program (== (not true) false))").unwrap();
     test_type_check("(program (== (> 10 2) false))").unwrap();
-    test_type_check("(program (>= (+ 10 2) 32))").unwrap();
+    test_type_check("(program (if false 0 42))").unwrap();
+
+    // R2 language
+    test_r2("(program (if false 0 42))");
+
+    // R1 language
     build_runtime();
     test("(program (+ (read) (let ([x 32]) (+ (let ([x 10]) x) x))))");
     test("(program (+ 10 2))");

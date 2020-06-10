@@ -15,3 +15,4 @@ build
 **/*.rs.bk
 runtime/*.o
 *.vi
+tmp/
