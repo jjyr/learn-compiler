@@ -82,7 +82,7 @@ pub fn print_ast(node: Box<Node>) {
             print_ast(node);
             print!(")");
         }
-        reg @ RAX | reg @ RBX => {
+        reg @ RAX | reg @ RBX | reg @ AL => {
             print!("(reg {:?})", reg);
         }
         MOVQ { target, source } => {
@@ -99,6 +99,22 @@ pub fn print_ast(node: Box<Node>) {
         }
         CALLQ(fname) => {
             print!("CALLQ {}", fname);
+        }
+        CMPQ(lhs, rhs) => {
+            print!("CMPQ ");
+            print_ast(rhs);
+            print!(" ");
+            print_ast(lhs);
+        }
+        SET(cc, dst) => {
+            print!("SET {:?} ", cc);
+            print_ast(dst);
+        }
+        MOVZBQ { source, target } => {
+            print!("MOVZBQ ");
+            print_ast(source);
+            print!(" ");
+            print_ast(target);
         }
         StackLoc(offset) => {
             print!("(deref RBP {})", offset);

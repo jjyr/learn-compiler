@@ -45,6 +45,10 @@ fn test_r2(s: &str) {
     let ast = pass::flattern(ast);
     print_stmt(ast.clone());
     println!();
+    println!("select inst:");
+    let ast = pass::select_inst(ast);
+    print_stmt(ast.clone());
+    println!();
 }
 
 fn test(s: &str) {
@@ -151,6 +155,7 @@ fn main() {
 
     // R2 language
     test_r2("(program (if false 0 42))");
+    test_r2("(program (if (== 4 10) 0 42))");
 
     // R1 language
     build_runtime();

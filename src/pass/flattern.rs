@@ -103,7 +103,14 @@ impl Context {
             } => {
                 assert_eq!(if_exps.len(), 1);
                 assert_eq!(else_exps.len(), 1);
-                let cond_var = self.flattern_inner(cond, node_list);
+
+                let mut cond_var = self.flattern_inner(cond, node_list);
+                if cond_var.is_literal() {
+                    let name = self.var_allocator.alloc();
+                    let node = Box::new(Assign(name.clone(), cond_var));
+                    node_list.push(node);
+                    cond_var = Box::new(Var(name));
+                }
                 let mut new_if_exps = Vec::new();
                 let mut new_else_exps = Vec::new();
                 let if_var = self.flattern_inner(if_exps.remove(0), &mut new_if_exps);

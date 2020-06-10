@@ -23,6 +23,15 @@ pub enum Token {
     If,
 }
 
+#[derive(Debug, Clone, Hash, Eq, PartialEq)]
+pub enum CondCode {
+    E,
+    L,
+    Le,
+    G,
+    Ge,
+}
+
 /// AST node
 #[derive(Debug, Clone, Hash, Eq, PartialEq)]
 pub enum Node {
@@ -48,10 +57,17 @@ pub enum Node {
         target: Box<Node>,
         arg: Box<Node>,
     },
+    CMPQ(Box<Node>, Box<Node>),
+    SET(CondCode, Box<Node>),
+    MOVZBQ {
+        source: Box<Node>,
+        target: Box<Node>,
+    },
     StackLoc(isize),
     // registers
     RAX,
     RBX,
+    AL,
     // bool logic
     True,
     False,
@@ -86,6 +102,18 @@ impl Node {
             Self::Fixnum(num) => Some(*num),
             _ => None,
         }
+    }
+
+    pub fn boolean(&self) -> Option<bool> {
+        match self {
+            Self::True => Some(true),
+            Self::False => Some(false),
+            _ => None,
+        }
+    }
+
+    pub fn is_literal(&self) -> bool {
+        self.fixnum().is_some() || self.boolean().is_some()
     }
 }
 
