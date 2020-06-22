@@ -16,6 +16,10 @@ impl<T: Eq + Hash + Default + Clone + Debug> Graph<T> {
         self.0.entry(b).or_insert_with(Default::default).insert(a);
     }
 
+    pub fn add_vertex(&mut self, a: T) {
+        self.0.entry(a.clone()).or_insert_with(Default::default);
+    }
+
     pub fn get_adjacents_set(&self, v: &T) -> Option<&HashSet<T>> {
         self.0.get(v)
     }

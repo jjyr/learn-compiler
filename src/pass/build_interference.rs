@@ -23,6 +23,8 @@ fn build_interference_inner(
         let node = match *node {
             ADDQ { target, arg } => {
                 let target_var = target.var_or_reg_name().unwrap();
+                interference_graph.add_vertex(target_var.clone());
+
                 for var in live_set {
                     if var != &target_var {
                         interference_graph.insert(var.to_owned(), target_var.clone());
@@ -32,6 +34,8 @@ fn build_interference_inner(
             }
             MOVQ { target, source } => {
                 let target_var = target.var_or_reg_name().unwrap();
+                interference_graph.add_vertex(target_var.clone());
+
                 let source_var_opt = source.var_or_reg_name();
                 // record move relation
                 if source != target && source_var_opt.is_some() {

@@ -93,12 +93,55 @@ fn color_graph(
         .collect()
 }
 
-fn map_var_node(var_to_reg: &HashMap<String, Node>, node: Box<Node>) -> Box<Node> {
-    if let Node::Var(var) = node.as_ref() {
+fn map_var_node(var_to_reg: &HashMap<String, Node>, node: Node) -> Box<Node> {
+    if let Node::Var(var) = &node {
         let value = var_to_reg[var].clone();
         Box::new(value)
     } else {
-        node
+        Box::new(node)
+    }
+}
+
+fn replace_node(node: Box<Node>, var_to_reg: &HashMap<String, Node>) -> Box<Node> {
+    use Node::*;
+
+    match *node {
+        ADDQ { target, arg } => {
+            let target = map_var_node(var_to_reg, *target);
+            let arg = map_var_node(var_to_reg, *arg);
+            Box::new(ADDQ { target, arg })
+        }
+        MOVQ { target, source } => {
+            let target = map_var_node(var_to_reg, *target);
+            let source = map_var_node(var_to_reg, *source);
+            Box::new(MOVQ { target, source })
+        }
+        var_node @ Var(_) => map_var_node(var_to_reg, var_node),
+        If {
+            cond,
+            if_exps,
+            else_exps,
+            if_live_afters,
+            else_live_afters,
+        } => {
+            let cond = replace_node(cond, var_to_reg);
+            let if_exps = if_exps
+                .into_iter()
+                .map(|node| replace_node(node, var_to_reg))
+                .collect();
+            let else_exps = else_exps
+                .into_iter()
+                .map(|node| replace_node(node, var_to_reg))
+                .collect();
+            Box::new(If {
+                cond,
+                if_exps,
+                else_exps,
+                if_live_afters,
+                else_live_afters,
+            })
+        }
+        value => Box::new(value),
     }
 }
 
@@ -122,20 +165,7 @@ pub fn allocate_registers(node_list: Vec<Box<Node>>, info: &mut Info) -> Vec<Box
 
     let mut new_node_list = Vec::with_capacity(node_list.len());
     for node in node_list {
-        let node = match *node {
-            ADDQ { target, arg } => {
-                let target = map_var_node(&var_to_reg, target);
-                let arg = map_var_node(&var_to_reg, arg);
-                Box::new(ADDQ { target, arg })
-            }
-            MOVQ { target, source } => {
-                let target = map_var_node(&var_to_reg, target);
-                let source = map_var_node(&var_to_reg, source);
-                Box::new(MOVQ { target, source })
-            }
-            value => Box::new(value),
-        };
-        new_node_list.push(node);
+        new_node_list.push(replace_node(node, &var_to_reg));
     }
     info.stack_vars_count = stack_vars_count;
     new_node_list

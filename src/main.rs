@@ -58,6 +58,11 @@ fn test_r2(s: &str) {
     println!("build interference:");
     let ast = pass::build_interference(ast, &mut info);
     println!("{:?}", info.interference_graph);
+    println!();
+    println!("alloc registers:");
+    let ast = pass::allocate_registers(ast, &mut info);
+    print_stmt(ast.clone());
+    println!();
 }
 
 fn test(s: &str) {
