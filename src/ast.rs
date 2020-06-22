@@ -1,9 +1,8 @@
 use crate::graph::Graph;
 use std::collections::{HashMap, HashSet};
-use std::hash::Hash;
 
 /// Token
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum Token {
     Neg,
     Add,
@@ -23,7 +22,7 @@ pub enum Token {
     If,
 }
 
-#[derive(Debug, Clone, Hash, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub enum CondCode {
     E,
     L,
@@ -33,7 +32,7 @@ pub enum CondCode {
 }
 
 /// AST node
-#[derive(Debug, Clone, Hash, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub enum Node {
     NOP,
     Program(Box<Node>),
@@ -81,6 +80,8 @@ pub enum Node {
         cond: Box<Node>,
         if_exps: Vec<Box<Node>>,
         else_exps: Vec<Box<Node>>,
+        if_live_afters: Vec<LiveSet>,
+        else_live_afters: Vec<LiveSet>,
     },
 }
 
@@ -97,6 +98,15 @@ impl Node {
             _ => None,
         }
     }
+
+    pub fn var_or_reg_name(&self) -> Option<String> {
+        match &self {
+            Self::Var(name) => Some(name.to_owned()),
+            Self::RAX => Some("RAX".to_string()),
+            _ => None,
+        }
+    }
+
     pub fn fixnum(&self) -> Option<isize> {
         match self {
             Self::Fixnum(num) => Some(*num),
@@ -130,6 +140,6 @@ pub struct Info {
     pub stack_vars_count: usize,
     pub vars_types: HashMap<String, Type>,
     pub live_afters: Vec<LiveSet>,
-    pub interference_graph: Graph<Node>,
-    pub move_graph: Graph<Node>,
+    pub interference_graph: Graph<String>,
+    pub move_graph: Graph<String>,
 }

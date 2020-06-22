@@ -7,29 +7,33 @@ pub fn build_interference(node_list: Vec<Box<Node>>, info: &mut Info) -> Vec<Box
     for (node, live_set) in node_list.into_iter().zip(info.live_afters.iter()) {
         match &node.as_ref() {
             ADDQ { target, arg: _ } => {
+                let target_var = target.var_or_reg_name().unwrap();
                 for var in live_set {
-                    let var = Var(var.to_owned());
-                    if &var != target.as_ref() {
-                        info.interference_graph.insert(var, *target.clone());
+                    if var != &target_var {
+                        info.interference_graph
+                            .insert(var.to_owned(), target_var.clone());
                     }
                 }
             }
             MOVQ { target, source } => {
+                let target_var = target.var_or_reg_name().unwrap();
+                let source_var_opt = source.var_or_reg_name();
                 // record move relation
-                if source != target {
-                    info.move_graph.insert(*source.clone(), *target.clone());
+                if source != target && source_var_opt.is_some() {
+                    info.move_graph
+                        .insert(source_var_opt.clone().unwrap(), target_var.clone());
                 }
                 for var in live_set {
-                    let var = Var(var.to_owned());
-                    if &var != target.as_ref() && &var != source.as_ref() {
-                        info.interference_graph.insert(var, *target.clone());
+                    if var != &target_var && Some(var) != source_var_opt.as_ref() {
+                        info.interference_graph
+                            .insert(var.to_owned(), target_var.to_owned());
                     }
                 }
             }
             CALLQ(_) => {
                 for var in live_set {
-                    let var = Var(var.to_owned());
-                    info.interference_graph.insert(var, RAX);
+                    info.interference_graph
+                        .insert(var.to_owned(), format!("{:?}", RAX));
                 }
             }
             _ => {

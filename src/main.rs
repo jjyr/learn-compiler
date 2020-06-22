@@ -49,6 +49,15 @@ fn test_r2(s: &str) {
     let ast = pass::select_inst(ast);
     print_stmt(ast.clone());
     println!();
+    println!("uncover live:");
+    let mut info = ast::Info::default();
+    let ast = pass::uncover_live(ast, &mut info);
+    print_stmt(ast.clone());
+    print_live_set(&info.live_afters);
+    println!();
+    println!("build interference:");
+    let ast = pass::build_interference(ast, &mut info);
+    println!("{:?}", info.interference_graph);
 }
 
 fn test(s: &str) {

@@ -123,6 +123,7 @@ pub fn print_ast(node: Box<Node>) {
             cond,
             if_exps,
             else_exps,
+            ..
         } => {
             print!("(if\n (");
             print_ast(cond);

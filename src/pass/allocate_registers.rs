@@ -12,23 +12,25 @@ struct Status {
 
 /// choose a color
 fn choose_a_color(
-    node: &Node,
-    status: &HashMap<Node, Status>,
-    move_relation: &Graph<Node>,
+    var: &String,
+    status: &HashMap<String, Status>,
+    move_relation: &Graph<String>,
 ) -> usize {
-    let node_status = status.get(node).expect("status");
+    let node_status = status.get(var).expect("status");
 
     // pick a color based on move relation
-    for related in move_relation.get_adjacents_set(node).expect("adjacents") {
-        if let Some(s) = status.get(&related) {
-            // use color of related node if it is possible
-            let color = match s.color {
-                Some(c) => c,
-                None => continue,
-            };
+    if let Some(adjacents) = move_relation.get_adjacents_set(var) {
+        for related in adjacents {
+            if let Some(s) = status.get(related) {
+                // use color of related variables if it is possible
+                let color = match s.color {
+                    Some(c) => c,
+                    None => continue,
+                };
 
-            if !node_status.conflicts.contains(&color) {
-                return color;
+                if !node_status.conflicts.contains(&color) {
+                    return color;
+                }
             }
         }
     }
@@ -44,29 +46,29 @@ fn choose_a_color(
 }
 
 fn find_most_saturated_vertex(
-    status: &HashMap<Node, Status>,
-    interference: &Graph<Node>,
-) -> Option<Node> {
+    status: &HashMap<String, Status>,
+    interference: &Graph<String>,
+) -> Option<String> {
     let v = interference
         .iter_vertex()
-        .filter(|v| status.get(v).expect("status").color.is_none())
+        .filter(|v| status.get(*v).expect("status").color.is_none())
         .max_by_key(|v| interference.get_adjacents_set(v).expect("adjacents").len());
     v.map(Clone::clone)
 }
 
 fn color_graph(
-    interference: &mut Graph<Node>,
-    move_relation: &mut Graph<Node>,
+    interference: &mut Graph<String>,
+    move_relation: &mut Graph<String>,
 ) -> HashMap<String, usize> {
     // remove RAX, since we use RAX to patch instructions,
     // so we do not allocate RAX for variables
     // which means RAX wound not be interferenced with other variables / registers
-    interference.remove(&Node::RAX);
+    interference.remove(&format!("{:?}", Node::RAX));
 
     // 1. find the most saturated vertex
     // 2. allocate a color
     // 3. mark adjacent vertexes
-    let mut status: HashMap<Node, Status> = interference
+    let mut status: HashMap<String, Status> = interference
         .iter_vertex()
         .cloned()
         .map(|vertex| (vertex, Status::default()))
@@ -80,19 +82,14 @@ fn color_graph(
 
         // update adjacents' conflicts
         for var in interference.get_adjacents_set(&vertex).expect("adjacents") {
-            status.get_mut(&var).unwrap().conflicts.insert(c);
+            status.get_mut(var).unwrap().conflicts.insert(c);
         }
     }
 
     // mapping color to registers
     status
         .into_iter()
-        .map(|(node, status)| {
-            (
-                node.var().expect("var").to_owned(),
-                status.color.expect("allocated"),
-            )
-        })
+        .map(|(var, status)| (var.to_owned(), status.color.expect("allocated")))
         .collect()
 }
 

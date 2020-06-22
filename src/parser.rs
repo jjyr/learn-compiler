@@ -169,6 +169,8 @@ impl Parser {
                 cond: self.read_exp(),
                 if_exps: vec![self.read_exp()],
                 else_exps: vec![self.read_exp()],
+                if_live_afters: Default::default(),
+                else_live_afters: Default::default(),
             },
         };
         if in_paren {

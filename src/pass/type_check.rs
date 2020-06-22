@@ -48,6 +48,7 @@ fn type_check_node(node: Box<Node>, var_types: &mut HashMap<String, Type>) -> Re
             cond,
             mut if_exps,
             mut else_exps,
+            ..
         } => {
             assert_eq!(if_exps.len(), 1);
             assert_eq!(else_exps.len(), 1);

@@ -100,6 +100,8 @@ impl Context {
                 cond,
                 mut if_exps,
                 mut else_exps,
+                if_live_afters,
+                else_live_afters,
             } => {
                 assert_eq!(if_exps.len(), 1);
                 assert_eq!(else_exps.len(), 1);
@@ -136,6 +138,8 @@ impl Context {
                     cond: cond_var,
                     if_exps: new_if_exps,
                     else_exps: new_else_exps,
+                    if_live_afters,
+                    else_live_afters,
                 });
                 node_list.push(node);
                 if_value_node

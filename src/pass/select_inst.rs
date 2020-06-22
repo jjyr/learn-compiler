@@ -73,6 +73,8 @@ fn select_one_inst(node: Node, node_list: &mut Vec<Box<Node>>) {
             cond,
             if_exps,
             else_exps,
+            if_live_afters,
+            else_live_afters,
         } => {
             assert!(cond.var().is_some(), "cond must be var or literal");
             let if_exps = select_inst(if_exps);
@@ -81,6 +83,8 @@ fn select_one_inst(node: Node, node_list: &mut Vec<Box<Node>>) {
                 cond,
                 if_exps,
                 else_exps,
+                if_live_afters,
+                else_live_afters,
             }));
         }
 
