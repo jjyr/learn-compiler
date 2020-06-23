@@ -116,6 +116,15 @@ pub fn print_ast(node: Box<Node>) {
             print!(" ");
             print_ast(target);
         }
+        JMPIF(cond_code, label) => {
+            print!("(jmp-if {:?} {})", cond_code, label);
+        }
+        JMP(label) => {
+            print!("(jmp {})", label);
+        }
+        Label(label) => {
+            print!("(label {})", label);
+        }
         StackLoc(offset) => {
             print!("(deref RBP {})", offset);
         }

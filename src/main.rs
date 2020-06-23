@@ -63,6 +63,10 @@ fn test_r2(s: &str) {
     let ast = pass::allocate_registers(ast, &mut info);
     print_stmt(ast.clone());
     println!();
+    println!("lower conditionals:");
+    let ast = pass::lower_conditionals(ast);
+    print_stmt(ast.clone());
+    println!();
 }
 
 fn test(s: &str) {

@@ -62,6 +62,9 @@ pub enum Node {
         source: Box<Node>,
         target: Box<Node>,
     },
+    JMPIF(CondCode, String),
+    JMP(String),
+    Label(String),
     StackLoc(isize),
     // registers
     RAX,
