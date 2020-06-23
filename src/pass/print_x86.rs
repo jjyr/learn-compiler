@@ -23,11 +23,31 @@ pub fn print_x86(f: &mut impl Write, node_list: Vec<Box<Node>>, info: Info) -> R
             MOVQ { target, source } => {
                 writeln!(f, "MOVQ {}, {}", parse_val(source), parse_val(target))?;
             }
+            MOVZBQ { target, source } => {
+                writeln!(f, "MOVZBQ {}, {}", parse_val(source), parse_val(target))?;
+            }
             ADDQ { target, arg } => {
                 writeln!(f, "ADDQ {}, {}", parse_val(arg), parse_val(target))?;
             }
             CALLQ(symbol) => {
                 writeln!(f, "CALLQ {}", symbol)?;
+            }
+            CMPQ(lhs, rhs) => {
+                writeln!(f, "CMPQ {}, {}", parse_val(lhs), parse_val(rhs))?;
+            }
+            SET(cond, reg) => {
+                assert_eq!(cond, CondCode::E, "unexpected condition code");
+                writeln!(f, "SETE {}", parse_val(reg))?;
+            }
+            JMPIF(cond, label) => {
+                assert_eq!(cond, CondCode::E, "unexpected condition code");
+                writeln!(f, "JE {}", label)?;
+            }
+            JMP(label) => {
+                writeln!(f, "JMP {}", label)?;
+            }
+            Label(label) => {
+                writeln!(f, "{}:", label)?;
             }
             _ => {
                 panic!("unexpected token {:?}", node);
@@ -54,6 +74,7 @@ fn parse_val(node: Box<Node>) -> String {
         StackLoc(offset) => format!("{}(%rbp)", offset),
         RAX => "%rax".to_string(),
         RBX => "%rbx".to_string(),
+        AL => "%al".to_string(),
         value => {
             panic!("failed to parse node {:?}", value);
         }

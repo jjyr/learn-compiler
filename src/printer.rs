@@ -102,9 +102,9 @@ pub fn print_ast(node: Box<Node>) {
         }
         CMPQ(lhs, rhs) => {
             print!("CMPQ ");
-            print_ast(rhs);
-            print!(" ");
             print_ast(lhs);
+            print!(" ");
+            print_ast(rhs);
         }
         SET(cc, dst) => {
             print!("SET {:?} ", cc);

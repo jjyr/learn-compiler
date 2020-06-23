@@ -67,6 +67,16 @@ fn test_r2(s: &str) {
     let ast = pass::lower_conditionals(ast);
     print_stmt(ast.clone());
     println!();
+    println!("patch inst:");
+    let ast = pass::patch_inst(ast);
+    print_stmt(ast.clone());
+    println!();
+    println!("print x86:");
+    let mut buf = Vec::new();
+    pass::print_x86(&mut buf, ast, info).unwrap();
+    println!("{}", String::from_utf8(buf.clone()).unwrap());
+    println!();
+    run_code(buf);
 }
 
 fn test(s: &str) {
@@ -125,10 +135,13 @@ fn test(s: &str) {
 fn run_cmd(cmd: String) {
     let mut child = Command::new("sh")
         .arg("-c")
-        .arg(cmd)
+        .arg(&cmd)
         .spawn()
         .expect("spawn");
-    child.wait().expect("failed to execute process");
+    let status = child.wait().expect("failed to execute process");
+    if !status.success() {
+        panic!("unsuccess cmd {}", cmd);
+    }
 }
 
 fn build_runtime() {

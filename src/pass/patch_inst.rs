@@ -4,7 +4,7 @@ use crate::ast::*;
 
 fn is_patchable(t: &Node) -> bool {
     match t {
-        Node::Var(_) | Node::StackLoc(_) => true,
+        Node::Var(_) | Node::StackLoc(_) | Node::Fixnum(_) => true,
         _ => false,
     }
 }
@@ -55,6 +55,19 @@ pub fn patch_inst(node_list: Vec<Box<Node>>) -> Vec<Box<Node>> {
                     source: reg,
                 });
                 new_node_list.push(move_back);
+            }
+            CMPQ(lhs, rhs) if is_patchable(&rhs) => {
+                // patch instruction if the two sides are both StackLoc
+                let reg = Box::new(RAX);
+                let move_to_reg = Box::new(MOVQ {
+                    target: reg.clone(),
+                    source: rhs,
+                });
+                new_node_list.push(move_to_reg);
+
+                let node = CMPQ(lhs, reg);
+                let patched_inst = Box::new(node);
+                new_node_list.push(patched_inst);
             }
 
             node => new_node_list.push(Box::new(node)),

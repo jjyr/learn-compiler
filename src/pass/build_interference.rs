@@ -48,6 +48,22 @@ fn build_interference_inner(
                 }
                 MOVQ { target, source }
             }
+            MOVZBQ { target, source } => {
+                let target_var = target.var_or_reg_name().unwrap();
+                interference_graph.add_vertex(target_var.clone());
+
+                let source_var_opt = source.var_or_reg_name();
+                // record move relation
+                if source != target && source_var_opt.is_some() {
+                    move_graph.insert(source_var_opt.clone().unwrap(), target_var.clone());
+                }
+                for var in live_set {
+                    if var != &target_var && Some(var) != source_var_opt.as_ref() {
+                        interference_graph.insert(var.to_owned(), target_var.to_owned());
+                    }
+                }
+                MOVZBQ { target, source }
+            }
             node @ CALLQ(_) => {
                 for var in live_set {
                     interference_graph.insert(var.to_owned(), format!("{:?}", RAX));

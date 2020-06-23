@@ -19,7 +19,12 @@ fn check_read_write(node: Box<Node>, live_set: &mut LiveSet) -> Box<Node> {
     use Node::*;
 
     let node = match *node {
-        MOVZBQ { target, source } | MOVQ { target, source } => {
+        MOVZBQ { target, source } => {
+            remove_var(live_set, &target);
+            add_var(live_set, &source);
+            MOVZBQ { target, source }
+        }
+        MOVQ { target, source } => {
             remove_var(live_set, &target);
             add_var(live_set, &source);
             MOVQ { target, source }

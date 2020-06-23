@@ -116,6 +116,11 @@ fn replace_node(node: Box<Node>, var_to_reg: &HashMap<String, Node>) -> Box<Node
             let source = map_var_node(var_to_reg, *source);
             Box::new(MOVQ { target, source })
         }
+        MOVZBQ { target, source } => {
+            let target = map_var_node(var_to_reg, *target);
+            let source = map_var_node(var_to_reg, *source);
+            Box::new(MOVZBQ { target, source })
+        }
         var_node @ Var(_) => map_var_node(var_to_reg, var_node),
         If {
             cond,
