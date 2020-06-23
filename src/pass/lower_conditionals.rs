@@ -14,7 +14,7 @@ pub fn lower_conditionals(node_list: Vec<Box<Node>>) -> Vec<Box<Node>> {
                 else_exps,
                 ..
             } => {
-                new_node_list.push(Box::new(CMPQ(cond, Box::new(Fixnum(0)))));
+                new_node_list.push(Box::new(CMPQ(cond, Box::new(Fixnum(1)))));
                 new_node_list.push(Box::new(JMPIF(CondCode::E, format!("then_{}", cnt))));
                 new_node_list.extend(else_exps);
                 new_node_list.push(Box::new(JMP(format!("end_{}", cnt))));
